@@ -1,0 +1,54 @@
+﻿@model BLL.DTOs.RegistrationDTO
+@{
+    ViewData["Title"] = "Registration";
+}
+
+<h2 class="mb-4">Registration</h2>
+
+@if (TempData["Msg"] != null)
+{
+    <div class="alert alert-@TempData["Class"]">@TempData["Msg"]</div>
+}
+
+<form method="post" asp-controller="Auth" asp-action="Registration">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label class="form-label">Name</label>
+        <input type="text" name="Name" value="@Model.Name" placeholder="Full Name" class="form-control" />
+        <span class="text-danger">@Html.ValidationMessage("Name")</span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="text" name="Email" value="@Model.Email" placeholder="Email" class="form-control" />
+        <span class="text-danger">@Html.ValidationMessage("Email")</span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" name="Password" placeholder="Password" class="form-control" />
+        <span class="text-danger">@Html.ValidationMessage("Password")</span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Confirm Password</label>
+        <input type="password" name="ConfirmPassword" placeholder="Confirm Password" class="form-control" />
+        <span class="text-danger">@Html.ValidationMessage("ConfirmPassword")</span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Role</label>
+        <select name="UserTypeId" class="form-select">
+            <option value="0" disabled selected>-- Select Role --</option>
+            @foreach (var t in (List<DAL.EF.Tables.UserType>)ViewBag.UserTypes)
+            {
+                <option value="@t.Id" selected="@(Model.UserTypeId == t.Id)">@t.Name</option>
+            }
+        </select>
+        <span class="text-danger">@Html.ValidationMessage("UserTypeId")</span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+    <a asp-controller="Auth" asp-action="Login" class="btn btn-link">Already have an account? Login</a>
+</form>

@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "Instructor Dashboard";
+}
+
+<div class="row">
+    <div class="col">
+        <h2>Welcome, @ViewBag.UserName!</h2>
+        <p class="lead">This is your instructor dashboard.</p>
+        <p>From here you'll be able to create courses, manage quizzes, and view enrolled students.</p>
+        <hr />
+        <a asp-controller="Auth" asp-action="Logout" class="btn btn-outline-danger">Logout</a>
+    </div>
+</div>
