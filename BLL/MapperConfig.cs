@@ -13,13 +13,12 @@ namespace BLL
             // User mappings
             cfg.CreateMap<User, UserDTO>().ReverseMap();
             cfg.CreateMap<User, RegistrationDTO>().ReverseMap();
-            // LoginDTO doesn't need entity mapping — it's only used for form input,
-            // never converted to/from User.
 
-            // More mappings will be added in later phases:
-            // cfg.CreateMap<Course, CourseDTO>().ReverseMap();
-            // cfg.CreateMap<Enrollment, EnrollmentDTO>().ReverseMap();
-            // ... etc.
+            // Course mappings  ← ADD THIS LINE
+            cfg.CreateMap<Course, CourseDTO>()
+               .ForMember(dest => dest.InstructorName,
+                          opt => opt.MapFrom(src => src.Instructor != null ? src.Instructor.Name : ""))
+               .ReverseMap();
         });
 
         public static Mapper GetMapper()

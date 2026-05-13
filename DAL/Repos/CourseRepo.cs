@@ -31,6 +31,13 @@ namespace DAL.Repos
             return db.Courses.ToList();
         }
 
+        public List<Course> GetByInstructor(int instructorId)
+        {
+            return db.Courses
+                .Where(c => c.InstructorId == instructorId)
+                .ToList();
+        }
+
         public bool Update(Course c)
         {
             var exobj = Get(c.Id);

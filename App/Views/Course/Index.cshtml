@@ -1,0 +1,50 @@
+﻿@model IEnumerable<BLL.DTOs.CourseDTO>
+
+@{
+    ViewData["Title"] = "My Courses";
+}
+
+<h1>My Courses</h1>
+
+@if (TempData["Msg"] != null)
+{
+    <div class="alert alert-@TempData["Class"]">@TempData["Msg"]</div>
+}
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">+ Create New Course</a>
+</p>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">You haven't created any courses yet. Click "Create New Course" to get started.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Difficulty</th>
+                <th>Created</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Title</td>
+                    <td><span class="badge bg-secondary">@item.Difficulty</span></td>
+                    <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-controller="Instructor" asp-action="Dashboard" class="btn btn-link">← Back to Dashboard</a>

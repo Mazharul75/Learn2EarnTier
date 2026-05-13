@@ -29,6 +29,7 @@ builder.Services.AddScoped<NotificationRepo>();
 
 // === BLL services (Scoped) ===
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<CourseService>();
 // More services added here in later phases:
 // builder.Services.AddScoped<CourseService>();      (Phase D)
 // builder.Services.AddScoped<EnrollmentService>();  (Phase F)

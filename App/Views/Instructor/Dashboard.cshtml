@@ -6,7 +6,21 @@
     <div class="col">
         <h2>Welcome, @ViewBag.UserName!</h2>
         <p class="lead">This is your instructor dashboard.</p>
-        <p>From here you'll be able to create courses, manage quizzes, and view enrolled students.</p>
+
+        <hr />
+
+        <div class="row mt-4">
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">My Courses</h5>
+                        <p class="card-text">Create, edit, and manage your courses.</p>
+                        <a asp-controller="Course" asp-action="Index" class="btn btn-primary">Manage Courses</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <hr />
         <a asp-controller="Auth" asp-action="Logout" class="btn btn-outline-danger">Logout</a>
     </div>
