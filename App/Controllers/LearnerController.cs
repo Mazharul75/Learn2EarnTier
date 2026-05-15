@@ -8,10 +8,13 @@ namespace App.Controllers
     public class LearnerController : Controller
     {
         CourseService courseService;
+        EnrollmentService enrollmentService;
 
-        public LearnerController(CourseService courseService)
+        public LearnerController(CourseService courseService,
+                                 EnrollmentService enrollmentService)
         {
             this.courseService = courseService;
+            this.enrollmentService = enrollmentService;
         }
 
         public IActionResult Dashboard()
@@ -24,7 +27,12 @@ namespace App.Controllers
         {
             var courses = courseService.Search(title, difficulty, instructor);
 
-            // Pass filter values back to the view so the form stays filled in
+            // Compute set of course IDs this learner has already enrolled in
+            int learnerId = (int)HttpContext.Session.GetInt32("UserId")!;
+            var myEnrollments = enrollmentService.GetByLearner(learnerId);
+            var enrolledCourseIds = new HashSet<int>(myEnrollments.Select(e => e.CourseId));
+            ViewBag.EnrolledCourseIds = enrolledCourseIds;
+
             ViewBag.Title = title;
             ViewBag.Difficulty = difficulty;
             ViewBag.Instructor = instructor;

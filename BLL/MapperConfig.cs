@@ -19,6 +19,19 @@ namespace BLL
                .ForMember(dest => dest.InstructorName,
                           opt => opt.MapFrom(src => src.Instructor != null ? src.Instructor.Name : ""))
                .ReverseMap();
+
+            // Enrollment mappings  ← ADD THIS BLOCK
+            cfg.CreateMap<Enrollment, EnrollmentDTO>()
+               .ForMember(dest => dest.CourseTitle,
+                          opt => opt.MapFrom(src => src.Course != null ? src.Course.Title : ""))
+               .ForMember(dest => dest.CourseDescription,
+                          opt => opt.MapFrom(src => src.Course != null ? src.Course.Description : ""))
+               .ForMember(dest => dest.CourseDifficulty,
+                          opt => opt.MapFrom(src => src.Course != null ? src.Course.Difficulty : ""))
+               .ForMember(dest => dest.InstructorName,
+                          opt => opt.MapFrom(src => src.Course != null && src.Course.Instructor != null
+                                                    ? src.Course.Instructor.Name : ""))
+               .ReverseMap();
         });
 
         public static Mapper GetMapper()

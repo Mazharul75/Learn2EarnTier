@@ -31,6 +31,19 @@ namespace DAL.Repos
             return db.Enrollments.ToList();
         }
 
+        public bool Exists(int learnerId, int courseId)
+        {
+            return db.Enrollments
+                .Any(e => e.LearnerId == learnerId && e.CourseId == courseId);
+        }
+
+        public List<Enrollment> GetByLearner(int learnerId)
+        {
+            return db.Enrollments
+                .Where(e => e.LearnerId == learnerId)
+                .ToList();
+        }
+
         public bool Update(Enrollment e)
         {
             var exobj = Get(e.Id);

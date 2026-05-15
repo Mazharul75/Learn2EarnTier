@@ -1,0 +1,52 @@
+﻿@model IEnumerable<BLL.DTOs.EnrollmentDTO>
+
+@{
+    ViewData["Title"] = "My Courses";
+}
+
+<h1>My Enrolled Courses</h1>
+
+@if (TempData["Msg"] != null)
+{
+    <div class="alert alert-@TempData["Class"]">@TempData["Msg"]</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        You haven't enrolled in any courses yet.
+        <a asp-controller="Learner" asp-action="BrowseCourses">Browse the catalog</a>
+        to find one.
+    </div>
+}
+else
+{
+    <p class="text-muted">@Model.Count() course(s)</p>
+    <div class="row">
+        @foreach (var e in Model)
+        {
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@e.CourseTitle</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">by @e.InstructorName</h6>
+                        <span class="badge bg-secondary mb-2">@e.CourseDifficulty</span>
+                        <p class="card-text">
+                            @(e.CourseDescription != null && e.CourseDescription.Length > 150
+                                                ? e.CourseDescription.Substring(0, 150) + "..."
+                                                : e.CourseDescription)
+                        </p>
+                    </div>
+                    <div class="card-footer text-muted small">
+                        Enrolled @e.EnrolledAt.ToString("dd MMM yyyy")
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<div class="mt-3">
+    <a asp-controller="Learner" asp-action="Dashboard" class="btn btn-link">← Back to Dashboard</a>
+    <a asp-controller="Learner" asp-action="BrowseCourses" class="btn btn-link">Browse more courses</a>
+</div>
