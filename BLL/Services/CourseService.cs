@@ -37,6 +37,40 @@ namespace BLL.Services
             return mapper.Map<List<CourseDTO>>(courses);
         }
 
+        public List<CourseDTO> Search(string? title, string? difficulty, string? instructor)
+        {
+            // Start with every course
+            var courses = courseRepo.Get();
+
+            // Fill instructor data so we can filter by instructor name and populate DTO field
+            FillInstructorNames(courses);
+
+            // Apply each filter only if a value was provided
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                courses = courses
+                    .Where(c => c.Title.Contains(title, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(difficulty))
+            {
+                courses = courses
+                    .Where(c => c.Difficulty == difficulty)
+                    .ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(instructor))
+            {
+                courses = courses
+                    .Where(c => c.Instructor != null &&
+                                c.Instructor.Name.Contains(instructor, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            return mapper.Map<List<CourseDTO>>(courses);
+        }
+
         // Get a single course by id
         public CourseDTO? Get(int id)
         {

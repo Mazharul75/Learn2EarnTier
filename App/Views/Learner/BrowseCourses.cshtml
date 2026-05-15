@@ -1,0 +1,86 @@
+﻿@model IEnumerable<BLL.DTOs.CourseDTO>
+
+@{
+    ViewData["Title"] = "Browse Courses";
+    var currentTitle = ViewBag.STitle as string;
+    var currentDifficulty = ViewBag.Difficulty as string;
+    var currentInstructor = ViewBag.Instructor as string;
+}
+
+<h1>Browse Courses</h1>
+
+<!-- Filter form -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="BrowseCourses">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Title</label>
+                    <input type="text" name="STitle" value="@currentTitle" placeholder="e.g. python" class="form-control" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Difficulty</label>
+                    <select name="difficulty" class="form-select">
+                        <option value="">-- Any --</option>
+                        <option value="Beginner" selected="@(currentDifficulty == "Beginner")">Beginner</option>
+                        <option value="Intermediate" selected="@(currentDifficulty == "Intermediate")">Intermediate</option>
+                        <option value="Advanced" selected="@(currentDifficulty == "Advanced")">Advanced</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Instructor name</label>
+                    <input type="text" name="instructor" value="@currentInstructor" placeholder="e.g. tanvir" class="form-control" />
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </div>
+
+            @if (currentTitle != null || currentDifficulty != null || currentInstructor != null)
+            {
+                <div class="mt-2">
+                    <a asp-action="BrowseCourses" class="btn btn-sm btn-link">Clear filters</a>
+                </div>
+            }
+        </form>
+    </div>
+</div>
+
+<!-- Results -->
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No courses found matching your filters.
+    </div>
+}
+else
+{
+    <p class="text-muted">@Model.Count() course(s) found.</p>
+    <div class="row">
+        @foreach (var course in Model)
+        {
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@course.Title</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">by @course.InstructorName</h6>
+                        <span class="badge bg-secondary mb-2">@course.Difficulty</span>
+                        <p class="card-text">
+                            @(course.Description.Length > 120
+                                                ? course.Description.Substring(0, 120) + "..."
+                                                : course.Description)
+                        </p>
+                    </div>
+                    <div class="card-footer text-muted small">
+                        Posted @course.CreatedAt.ToString("dd MMM yyyy")
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<a asp-action="Dashboard" class="btn btn-link">← Back to Dashboard</a>

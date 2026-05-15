@@ -6,7 +6,21 @@
     <div class="col">
         <h2>Welcome, @ViewBag.UserName!</h2>
         <p class="lead">This is your learner dashboard.</p>
-        <p>From here you'll be able to browse courses, take quizzes, and track your progress.</p>
+
+        <hr />
+
+        <div class="row mt-4">
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Browse Courses</h5>
+                        <p class="card-text">Discover courses by topic, difficulty, or instructor.</p>
+                        <a asp-controller="Learner" asp-action="BrowseCourses" class="btn btn-primary">Browse Catalog</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <hr />
         <a asp-controller="Auth" asp-action="Logout" class="btn btn-outline-danger">Logout</a>
     </div>
