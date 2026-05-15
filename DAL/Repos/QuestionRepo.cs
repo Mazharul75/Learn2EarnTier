@@ -31,6 +31,13 @@ namespace DAL.Repos
             return db.Questions.ToList();
         }
 
+        public List<Question> GetByQuiz(int quizId)
+        {
+            return db.Questions
+                .Where(q => q.QuizId == quizId)
+                .ToList();
+        }
+
         public bool Update(Question q)
         {
             var exobj = Get(q.Id);

@@ -31,6 +31,11 @@ namespace DAL.Repos
             return db.Quizzes.ToList();
         }
 
+        public Quiz? GetByCourse(int courseId)
+        {
+            return db.Quizzes.FirstOrDefault(q => q.CourseId == courseId);
+        }
+
         public bool Update(Quiz q)
         {
             var exobj = Get(q.Id);

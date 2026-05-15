@@ -1,0 +1,81 @@
+﻿@model BLL.DTOs.QuizResultDTO
+
+@{
+    ViewData["Title"] = "Quiz Result";
+}
+
+<h1>Quiz Result</h1>
+<p class="text-muted">Course: <strong>@Model.CourseTitle</strong> &middot; Attempted on @Model.AttemptedAt.ToString("dd MMM yyyy HH:mm")</p>
+
+<div class="card mb-4 @(Model.Passed ? "border-success" : "border-danger")">
+    <div class="card-body text-center">
+        <h2 class="display-1 @(Model.Passed ? "text-success" : "text-danger")">@Model.Score%</h2>
+        <p class="lead">
+            You got <strong>@Model.CorrectCount</strong> out of <strong>@Model.TotalQuestions</strong> correct.
+        </p>
+        @if (Model.Passed)
+        {
+            <div class="alert alert-success">
+                🎉 Congratulations! You passed (needed @Model.PassMark%).
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger">
+                Sorry, you did not pass. The pass mark is @Model.PassMark%. You can try again.
+            </div>
+        }
+    </div>
+</div>
+
+<h3>Review</h3>
+@for (int i = 0; i < Model.Breakdown.Count; i++)
+{
+    var q = Model.Breakdown[i];
+    <div class="card mb-3 @(q.IsCorrect ? "border-success" : "border-danger")">
+        <div class="card-body">
+            <h5>Q@(i + 1). @q.QuestionText</h5>
+            <ul class="list-unstyled">
+                @foreach (var letter in new[] { "A", "B", "C", "D" })
+                {
+                    var optionText = letter switch
+                    {
+                                    "A" => q.OptionA,
+                                    "B" => q.OptionB,
+                                    "C" => q.OptionC,
+                                    "D" => q.OptionD,
+                        _ => ""
+                    };
+
+                    bool isCorrect = q.CorrectOption == letter;
+                    bool isPicked = q.PickedOption == letter;
+
+                    string cls =
+                    isCorrect ? "text-success fw-bold" :
+                    isPicked ? "text-danger fw-bold" : "";
+
+                    <li class="@cls">
+                        @letter) @optionText
+                        @if (isCorrect)
+                        {
+                            <span>✓ correct</span>
+                        }
+                        @if (isPicked && !isCorrect)
+                        {
+                            <span>← your pick</span>
+                        }
+                    </li>
+                }
+            </ul>
+            @if (q.PickedOption == null)
+            {
+                <small class="text-muted">You did not answer this question.</small>
+            }
+        </div>
+    </div>
+}
+
+<div class="mt-4">
+    <a asp-controller="Enrollment" asp-action="MyCourses" class="btn btn-primary">Back to My Courses</a>
+    <a asp-controller="Quiz" asp-action="Take" asp-route-id="@Model.CourseId" class="btn btn-outline-secondary">Try Again</a>
+</div>

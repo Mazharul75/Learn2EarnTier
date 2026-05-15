@@ -31,6 +31,7 @@ builder.Services.AddScoped<NotificationRepo>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CourseService>();
 builder.Services.AddScoped<EnrollmentService>();
+builder.Services.AddScoped<QuizService>();
 // More services added here in later phases:
 // builder.Services.AddScoped<CourseService>();      (Phase D)
 // builder.Services.AddScoped<EnrollmentService>();  (Phase F)

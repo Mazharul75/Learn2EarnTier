@@ -31,6 +31,20 @@ namespace DAL.Repos
             return db.QuizAttempts.ToList();
         }
 
+        public List<QuizAttempt> GetByLearnerAndQuiz(int learnerId, int quizId)
+        {
+            return db.QuizAttempts
+                .Where(a => a.LearnerId == learnerId && a.QuizId == quizId)
+                .ToList();
+        }
+
+        public List<QuizAttempt> GetByLearner(int learnerId)
+        {
+            return db.QuizAttempts
+                .Where(a => a.LearnerId == learnerId)
+                .ToList();
+        }
+
         public bool Update(QuizAttempt a)
         {
             var exobj = Get(a.Id);

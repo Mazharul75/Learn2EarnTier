@@ -37,8 +37,11 @@ else
                                                 : e.CourseDescription)
                         </p>
                     </div>
-                    <div class="card-footer text-muted small">
-                        Enrolled @e.EnrolledAt.ToString("dd MMM yyyy")
+                    <div class="card-footer">
+                        <small class="text-muted">Enrolled @e.EnrolledAt.ToString("dd MMM yyyy")</small>
+                        <div class="mt-2">
+                            <a asp-controller="Quiz" asp-action="Take" asp-route-id="@e.CourseId" class="btn btn-sm btn-primary">Take Quiz</a>
+                        </div>
                     </div>
                 </div>
             </div>

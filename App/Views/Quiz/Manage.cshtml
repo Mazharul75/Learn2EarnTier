@@ -1,0 +1,98 @@
+﻿@model BLL.DTOs.QuizDTO
+
+@{
+    ViewData["Title"] = "Manage Quiz";
+}
+
+<h1>Manage Quiz</h1>
+<p class="text-muted">Course: <strong>@Model.CourseTitle</strong> &middot; Pass mark: <strong>@Model.PassMark%</strong></p>
+
+@if (TempData["Msg"] != null)
+{
+    <div class="alert alert-@TempData["Class"]">@TempData["Msg"]</div>
+}
+
+<hr />
+
+<h3>Existing Questions (@Model.Questions.Count)</h3>
+
+@if (!Model.Questions.Any())
+{
+    <p class="text-muted">No questions yet. Add the first one below.</p>
+}
+else
+{
+    @for (int i = 0; i < Model.Questions.Count; i++)
+    {
+        var q = Model.Questions[i];
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>Q@(i + 1). @q.QuestionText</h5>
+                <ul class="list-unstyled">
+                    <li class="@(q.CorrectOption == "A" ? "text-success fw-bold" : "")">A) @q.OptionA @(q.CorrectOption == "A" ? "✓" : "")</li>
+                    <li class="@(q.CorrectOption == "B" ? "text-success fw-bold" : "")">B) @q.OptionB @(q.CorrectOption == "B" ? "✓" : "")</li>
+                    <li class="@(q.CorrectOption == "C" ? "text-success fw-bold" : "")">C) @q.OptionC @(q.CorrectOption == "C" ? "✓" : "")</li>
+                    <li class="@(q.CorrectOption == "D" ? "text-success fw-bold" : "")">D) @q.OptionD @(q.CorrectOption == "D" ? "✓" : "")</li>
+                </ul>
+                <a asp-action="EditQuestion" asp-route-id="@q.Id" asp-route-courseId="@Model.CourseId" class="btn btn-sm btn-warning">Edit</a>
+                <form asp-action="DeleteQuestion" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@q.Id" />
+                    <input type="hidden" name="courseId" value="@Model.CourseId" />
+                    <button type="submit" class="btn btn-sm btn-danger"
+                            onclick="return confirm('Delete this question?');">
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
+}
+
+<hr />
+
+<h3>Add New Question</h3>
+
+<form asp-action="AddQuestion" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="QuizId" value="@Model.Id" />
+    <input type="hidden" name="courseId" value="@Model.CourseId" />
+
+    <div class="mb-3">
+        <label class="form-label">Question</label>
+        <input type="text" name="QuestionText" class="form-control" placeholder="What is the capital of Bangladesh?" />
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Option A</label>
+            <input type="text" name="OptionA" class="form-control" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Option B</label>
+            <input type="text" name="OptionB" class="form-control" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Option C</label>
+            <input type="text" name="OptionC" class="form-control" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Option D</label>
+            <input type="text" name="OptionD" class="form-control" />
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Correct Option</label>
+        <select name="CorrectOption" class="form-select" style="max-width:200px;">
+            <option value="">-- Pick correct --</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Question</button>
+    <a asp-controller="Course" asp-action="Index" class="btn btn-link">← Back to My Courses</a>
+</form>
