@@ -9,25 +9,30 @@ namespace App.Controllers
     {
         CourseService courseService;
         EnrollmentService enrollmentService;
+        ProgressService progressService;
 
         public LearnerController(CourseService courseService,
-                                 EnrollmentService enrollmentService)
+                                 EnrollmentService enrollmentService,
+                                 ProgressService progressService)
         {
             this.courseService = courseService;
             this.enrollmentService = enrollmentService;
+            this.progressService = progressService;
         }
 
         public IActionResult Dashboard()
         {
+            int learnerId = (int)HttpContext.Session.GetInt32("UserId")!;
             ViewBag.UserName = HttpContext.Session.GetString("UserName");
-            return View();
+
+            var stats = progressService.GetLearnerStats(learnerId);
+            return View(stats);
         }
 
         public IActionResult BrowseCourses(string? title, string? difficulty, string? instructor)
         {
             var courses = courseService.Search(title, difficulty, instructor);
 
-            // Compute set of course IDs this learner has already enrolled in
             int learnerId = (int)HttpContext.Session.GetInt32("UserId")!;
             var myEnrollments = enrollmentService.GetByLearner(learnerId);
             var enrolledCourseIds = new HashSet<int>(myEnrollments.Select(e => e.CourseId));

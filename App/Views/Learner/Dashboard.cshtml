@@ -1,37 +1,155 @@
-﻿@{
+﻿@model BLL.DTOs.ProgressDTO
+
+@{
     ViewData["Title"] = "Learner Dashboard";
 }
 
-<div class="row">
-    <div class="col">
-        <h2>Welcome, @ViewBag.UserName!</h2>
-        <p class="lead">This is your learner dashboard.</p>
+<h2>Welcome, @ViewBag.UserName!</h2>
+<p class="lead">Track your learning progress and discover new courses.</p>
 
-        <hr />
-
-        <div class="row mt-4">
-            <div class="col-md-4 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Browse Courses</h5>
-                        <p class="card-text">Discover courses by topic, difficulty, or instructor.</p>
-                        <a asp-controller="Learner" asp-action="BrowseCourses" class="btn btn-primary">Browse Catalog</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">My Courses</h5>
-                        <p class="card-text">View courses you're enrolled in.</p>
-                        <a asp-controller="Enrollment" asp-action="MyCourses" class="btn btn-success">My Enrollments</a>
-                    </div>
-                </div>
+<!-- ===== Stat cards ===== -->
+<div class="row mt-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-center bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2">Enrolled Courses</h6>
+                <h2 class="display-5">@Model.EnrolledCoursesCount</h2>
             </div>
         </div>
+    </div>
 
-        <hr />
-        <a asp-controller="Auth" asp-action="Logout" class="btn btn-outline-danger">Logout</a>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center bg-info text-white">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2">Quizzes Attempted</h6>
+                <h2 class="display-5">@Model.QuizzesAttempted</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card text-center bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2">Quizzes Passed</h6>
+                <h2 class="display-5">@Model.QuizzesPassed</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card text-center bg-warning text-dark">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2">Average Score</h6>
+                <h2 class="display-5">
+                    @if (Model.QuizzesAttempted > 0)
+                    {
+                        <span>@Model.AverageScore%</span>
+                    }
+                    else
+                    {
+                        <span>—</span>
+                    }
+                </h2>
+            </div>
+        </div>
     </div>
 </div>
+
+@if (Model.LastAttemptedAt != null)
+{
+    <p class="text-muted small">
+        Last quiz attempt: @Model.LastAttemptedAt.Value.ToString("dd MMM yyyy HH:mm")
+    </p>
+}
+
+<!-- ===== Chart (Phase H4) ===== -->
+@if (Model.CourseScores.Any())
+{
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">Score per Course (best attempt)</h5>
+            <canvas id="scoreChart" height="100"></canvas>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-light mt-4">
+        Take a quiz to see your scores visualized here.
+    </div>
+}
+
+<!-- ===== Navigation cards ===== -->
+<hr class="mt-5" />
+
+<div class="row mt-4">
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Browse Courses</h5>
+                <p class="card-text">Discover courses by topic, difficulty, or instructor.</p>
+                <a asp-action="BrowseCourses" class="btn btn-primary">Browse Catalog</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">My Courses</h5>
+                <p class="card-text">View courses you're enrolled in and take quizzes.</p>
+                <a asp-controller="Enrollment" asp-action="MyCourses" class="btn btn-success">My Enrollments</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr />
+<a asp-controller="Auth" asp-action="Logout" class="btn btn-outline-danger">Logout</a>
+
+@section Scripts {
+    @if (Model.CourseScores.Any())
+    {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <script>
+            const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CourseScores.Select(c => c.CourseTitle)));
+            const scores = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CourseScores.Select(c => c.BestScore)));
+            const passedFlags = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CourseScores.Select(c => c.Passed)));
+
+            // Color bars: green if passed, red if not
+            const backgroundColors = passedFlags.map(p => p ? 'rgba(40,167,69,0.7)' : 'rgba(220,53,69,0.7)');
+            const borderColors = passedFlags.map(p => p ? 'rgba(40,167,69,1)' : 'rgba(220,53,69,1)');
+
+            const ctx = document.getElementById('scoreChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Best Score (%)',
+                        data: scores,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: { display: true, text: 'Score (%)' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Course' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        </script>
+    }
+}
