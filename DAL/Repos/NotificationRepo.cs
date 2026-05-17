@@ -31,6 +31,34 @@ namespace DAL.Repos
             return db.Notifications.ToList();
         }
 
+        public List<Notification> GetByUser(int userId)
+        {
+            return db.Notifications
+                .Where(n => n.UserId == userId)
+                .OrderByDescending(n => n.CreatedAt)
+                .ToList();
+        }
+
+        public int GetUnreadCount(int userId)
+        {
+            return db.Notifications.Count(n => n.UserId == userId && !n.IsRead);
+        }
+
+        public bool MarkAsRead(int notificationId)
+        {
+            var n = db.Notifications.Find(notificationId);
+            if (n == null) return false;
+            n.IsRead = true;
+            return db.SaveChanges() > 0;
+        }
+
+        public bool MarkAllAsRead(int userId)
+        {
+            var unread = db.Notifications.Where(n => n.UserId == userId && !n.IsRead).ToList();
+            foreach (var n in unread) n.IsRead = true;
+            return db.SaveChanges() > 0;
+        }
+
         public bool Update(Notification n)
         {
             var exobj = Get(n.Id);

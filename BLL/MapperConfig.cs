@@ -44,6 +44,9 @@ namespace BLL
             cfg.CreateMap<Question, QuestionDTO>().ReverseMap();
 
             cfg.CreateMap<Question, QuestionForLearnerDTO>();
+
+            // Notification mappings
+            cfg.CreateMap<Notification, NotificationDTO>().ReverseMap();
         });
 
         public static Mapper GetMapper()

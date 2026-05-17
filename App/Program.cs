@@ -33,6 +33,7 @@ builder.Services.AddScoped<CourseService>();
 builder.Services.AddScoped<EnrollmentService>();
 builder.Services.AddScoped<QuizService>();
 builder.Services.AddScoped<ProgressService>();
+builder.Services.AddScoped<NotificationService>();
 // More services added here in later phases:
 // builder.Services.AddScoped<CourseService>();      (Phase D)
 // builder.Services.AddScoped<EnrollmentService>();  (Phase F)

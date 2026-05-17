@@ -12,12 +12,14 @@ namespace BLL.Services
     {
         CourseRepo courseRepo;
         UserRepo userRepo;
+        NotificationService notificationService;
         Mapper mapper;
 
-        public CourseService(CourseRepo courseRepo, UserRepo userRepo)
+        public CourseService(CourseRepo courseRepo, UserRepo userRepo, NotificationService notificationService)
         {
             this.courseRepo = courseRepo;
             this.userRepo = userRepo;
+            this.notificationService = notificationService;
             mapper = MapperConfig.GetMapper();
         }
 
@@ -91,7 +93,16 @@ namespace BLL.Services
                 InstructorId = instructorId,
                 CreatedAt = DateTime.Now
             };
-            return courseRepo.Create(course);
+            bool saved = courseRepo.Create(course);
+            if (!saved) return false;
+
+            //  Notify all Learners about the new course
+            notificationService.NotifyByRole(
+                userTypeId: 1,  // 1 = Learner
+                message: $"New course available: \"{course.Title}\" ({course.Difficulty})",
+                link: "/Learner/BrowseCourses");
+
+            return true;
         }
 
         // Update — but only if the caller owns the course

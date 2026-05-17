@@ -13,15 +13,18 @@ namespace BLL.Services
         EnrollmentRepo enrollmentRepo;
         CourseRepo courseRepo;
         UserRepo userRepo;
+        NotificationService notificationService;
         Mapper mapper;
 
         public EnrollmentService(EnrollmentRepo enrollmentRepo,
                                  CourseRepo courseRepo,
-                                 UserRepo userRepo)
+                                 UserRepo userRepo,
+                                 NotificationService notificationService)
         {
             this.enrollmentRepo = enrollmentRepo;
             this.courseRepo = courseRepo;
             this.userRepo = userRepo;
+            this.notificationService = notificationService;
             mapper = MapperConfig.GetMapper();
         }
 
@@ -57,7 +60,17 @@ namespace BLL.Services
             };
 
             bool saved = enrollmentRepo.Create(enrollment);
-            return saved ? EnrollResult.Success : EnrollResult.DatabaseError;
+            if (!saved) return EnrollResult.DatabaseError;
+
+            // Notify the instructor that a learner enrolled
+            var learner = userRepo.Get(learnerId);
+            string learnerName = learner?.Name ?? "Someone";
+            notificationService.Notify(
+                userId: course.InstructorId,
+                message: $"{learnerName} enrolled in your course \"{course.Title}\".",
+                link: "/Course/Index");
+
+            return EnrollResult.Success;
         }
 
         // ===== Check if a learner is already enrolled in a course =====

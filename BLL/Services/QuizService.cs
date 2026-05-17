@@ -15,19 +15,22 @@ namespace BLL.Services
         QuizAttemptRepo attemptRepo;
         CourseRepo courseRepo;
         EnrollmentRepo enrollmentRepo;
+        NotificationService notificationService;
         Mapper mapper;
 
         public QuizService(QuizRepo quizRepo,
                            QuestionRepo questionRepo,
                            QuizAttemptRepo attemptRepo,
                            CourseRepo courseRepo,
-                           EnrollmentRepo enrollmentRepo)
+                           EnrollmentRepo enrollmentRepo,
+                           NotificationService notificationService)
         {
             this.quizRepo = quizRepo;
             this.questionRepo = questionRepo;
             this.attemptRepo = attemptRepo;
             this.courseRepo = courseRepo;
             this.enrollmentRepo = enrollmentRepo;
+            this.notificationService = notificationService;
             mapper = MapperConfig.GetMapper();
         }
 
@@ -193,6 +196,15 @@ namespace BLL.Services
 
             bool saved = attemptRepo.Create(attempt);
             if (!saved) return (SubmitResult.DatabaseError, null);
+
+            //Notify the learner if they passed
+            if (passed)
+            {
+                notificationService.Notify(
+                    userId: learnerId,
+                    message: $"You passed the quiz for \"{course.Title}\" with {score}%!",
+                    link: "/Enrollment/MyCourses");
+            }
 
             // ===== BUILD RESULT DTO =====
             var result = new QuizResultDTO
