@@ -29,11 +29,11 @@ namespace BLL.DTOs
         public string? ContentLink { get; set; }
 
         [Range(0, 1000, ErrorMessage = "Capacity must be between 0 and 1000. Use 0 for unlimited.")]
-        public int MaxCapacity { get; set; } = 0;  // 0 = unlimited
+        public int MaxCapacity { get; set; } = 0;  
 
         public int? PrerequisiteId { get; set; }
         public string? PrerequisiteTitle { get; set; } 
-        public int CurrentEnrollmentCount { get; set; }  // computed, for display
+        public int CurrentEnrollmentCount { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }
