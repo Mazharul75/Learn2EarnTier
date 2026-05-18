@@ -22,8 +22,11 @@ namespace BLL.DTOs
 
         public int InstructorId { get; set; }
 
-        // Optional read-only fields (filled by service, not by form input)
         public string? InstructorName { get; set; }
+
+        [Url(ErrorMessage = "Please enter a valid URL")]
+        [StringLength(500)]
+        public string? ContentLink { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

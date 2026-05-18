@@ -90,6 +90,7 @@ namespace BLL.Services
                 Title = dto.Title,
                 Description = dto.Description,
                 Difficulty = dto.Difficulty,
+                ContentLink = dto.ContentLink,
                 InstructorId = instructorId,
                 CreatedAt = DateTime.Now
             };
@@ -115,7 +116,7 @@ namespace BLL.Services
             existing.Title = dto.Title;
             existing.Description = dto.Description;
             existing.Difficulty = dto.Difficulty;
-            // InstructorId, CreatedAt stay the same
+            existing.ContentLink = dto.ContentLink;
 
             return courseRepo.Update(existing);
         }

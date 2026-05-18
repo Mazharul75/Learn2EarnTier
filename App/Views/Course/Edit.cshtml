@@ -39,6 +39,12 @@
                 </select>
                 <span asp-validation-for="Difficulty" class="text-danger"></span>
             </div>
+            <div class="mb-3">
+                <label asp-for="ContentLink" class="form-label">Course Content Link (Google Drive, YouTube, etc.)</label>
+                <input asp-for="ContentLink" class="form-control" placeholder="https://drive.google.com/..." />
+                <span asp-validation-for="ContentLink" class="text-danger"></span>
+                <small class="text-muted">Optional — paste a link to your slides, videos, or other materials.</small>
+            </div>
 
             <button type="submit" class="btn btn-primary">Save Changes</button>
             <a asp-action="Index" class="btn btn-secondary">Cancel</a>

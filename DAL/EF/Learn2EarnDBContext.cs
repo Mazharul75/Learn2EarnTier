@@ -18,7 +18,11 @@ public partial class Learn2EarnDBContext : DbContext
 
     public virtual DbSet<Course> Courses { get; set; }
 
+    public virtual DbSet<CourseTask> CourseTasks { get; set; }
+
     public virtual DbSet<Enrollment> Enrollments { get; set; }
+
+    public virtual DbSet<MaterialCompletion> MaterialCompletions { get; set; }
 
     public virtual DbSet<Notification> Notifications { get; set; }
 
@@ -28,12 +32,14 @@ public partial class Learn2EarnDBContext : DbContext
 
     public virtual DbSet<QuizAttempt> QuizAttempts { get; set; }
 
+    public virtual DbSet<TaskSubmission> TaskSubmissions { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UserType> UserTypes { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Name=DbConn");
+        => optionsBuilder.UseSqlServer("Name=ConnectionStrings:DbConn");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -41,6 +47,7 @@ public partial class Learn2EarnDBContext : DbContext
         {
             entity.ToTable("Course");
 
+            entity.Property(e => e.ContentLink).HasMaxLength(500);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())", "DF_Course_CreatedAt")
                 .HasColumnType("datetime");
@@ -51,6 +58,27 @@ public partial class Learn2EarnDBContext : DbContext
                 .HasForeignKey(d => d.InstructorId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Course_User");
+
+            entity.HasOne(d => d.Prerequisite).WithMany(p => p.InversePrerequisite)
+                .HasForeignKey(d => d.PrerequisiteId)
+                .HasConstraintName("FK_Course_Prerequisite");
+        });
+
+        modelBuilder.Entity<CourseTask>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__CourseTa__3214EC07A7EBCB7D");
+
+            entity.ToTable("CourseTask");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())", "DF_CourseTask_CreatedAt")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Title).HasMaxLength(200);
+
+            entity.HasOne(d => d.Course).WithMany(p => p.CourseTasks)
+                .HasForeignKey(d => d.CourseId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CourseTask_Course");
         });
 
         modelBuilder.Entity<Enrollment>(entity =>
@@ -72,6 +100,29 @@ public partial class Learn2EarnDBContext : DbContext
                 .HasForeignKey(d => d.LearnerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Enrollment_User");
+        });
+
+        modelBuilder.Entity<MaterialCompletion>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Material__3214EC073CB62866");
+
+            entity.ToTable("MaterialCompletion");
+
+            entity.HasIndex(e => new { e.LearnerId, e.CourseId }, "UQ_MaterialCompletion").IsUnique();
+
+            entity.Property(e => e.CompletedAt)
+                .HasDefaultValueSql("(getdate())", "DF_MaterialCompletion_CompletedAt")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Course).WithMany(p => p.MaterialCompletions)
+                .HasForeignKey(d => d.CourseId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MaterialCompletion_Course");
+
+            entity.HasOne(d => d.Learner).WithMany(p => p.MaterialCompletions)
+                .HasForeignKey(d => d.LearnerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MaterialCompletion_Learner");
         });
 
         modelBuilder.Entity<Notification>(entity =>
@@ -141,6 +192,33 @@ public partial class Learn2EarnDBContext : DbContext
                 .HasForeignKey(d => d.QuizId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_QuizAttempt_Quiz");
+        });
+
+        modelBuilder.Entity<TaskSubmission>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__TaskSubm__3214EC07149CBF92");
+
+            entity.ToTable("TaskSubmission");
+
+            entity.HasIndex(e => new { e.TaskId, e.LearnerId }, "UQ_TaskSubmission").IsUnique();
+
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue("Pending", "DF_TaskSubmission_Status");
+            entity.Property(e => e.SubmissionLink).HasMaxLength(500);
+            entity.Property(e => e.SubmittedAt)
+                .HasDefaultValueSql("(getdate())", "DF_TaskSubmission_SubmittedAt")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Learner).WithMany(p => p.TaskSubmissions)
+                .HasForeignKey(d => d.LearnerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_TaskSubmission_Learner");
+
+            entity.HasOne(d => d.Task).WithMany(p => p.TaskSubmissions)
+                .HasForeignKey(d => d.TaskId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_TaskSubmission_Task");
         });
 
         modelBuilder.Entity<User>(entity =>

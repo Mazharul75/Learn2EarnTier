@@ -87,6 +87,26 @@ namespace BLL.Services
             return mapper.Map<List<EnrollmentDTO>>(enrollments);
         }
 
+        public List<EnrollmentDTO> GetByCourse(int courseId)
+        {
+            var enrollments = enrollmentRepo.GetByCourse(courseId);
+            // Fill learner data
+            foreach (var e in enrollments)
+            {
+                if (e.Learner == null)
+                    e.Learner = userRepo.Get(e.LearnerId);
+            }
+            return enrollments.Select(e => new EnrollmentDTO
+            {
+                Id = e.Id,
+                LearnerId = e.LearnerId,
+                CourseId = e.CourseId,
+                EnrolledAt = e.EnrolledAt,
+                LearnerName = e.Learner?.Name,
+                LearnerEmail = e.Learner?.Email
+            }).ToList();
+        }
+
         // ===== Helper: populate Course and Course.Instructor navigation =====
         void FillCourseAndInstructor(List<Enrollment> enrollments)
         {

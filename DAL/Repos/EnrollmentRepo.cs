@@ -44,6 +44,13 @@ namespace DAL.Repos
                 .ToList();
         }
 
+        public List<Enrollment> GetByCourse(int courseId)
+        {
+            return db.Enrollments
+                .Where(e => e.CourseId == courseId)
+                .ToList();
+        }
+
         public bool Update(Enrollment e)
         {
             var exobj = Get(e.Id);

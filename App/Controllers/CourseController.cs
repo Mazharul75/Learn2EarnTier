@@ -9,10 +9,12 @@ namespace App.Controllers
     public class CourseController : Controller
     {
         CourseService courseService;
+        EnrollmentService enrollmentService;
 
-        public CourseController(CourseService courseService)
+        public CourseController(CourseService courseService, EnrollmentService enrollmentService)
         {
             this.courseService = courseService;
+            this.enrollmentService = enrollmentService;
         }
 
         // ===== INDEX: list this instructor's courses =====
@@ -46,6 +48,22 @@ namespace App.Controllers
                 ModelState.AddModelError("", "Failed to create course.");
             }
             return View(dto);
+        }
+
+        public IActionResult Students(int id)
+        {
+            int instructorId = (int)HttpContext.Session.GetInt32("UserId")!;
+            if (!courseService.IsOwnedBy(id, instructorId))
+            {
+                TempData["Class"] = "danger";
+                TempData["Msg"] = "You don't own this course.";
+                return RedirectToAction("Index");
+            }
+
+            var course = courseService.Get(id);
+            var students = enrollmentService.GetByCourse(id);
+            ViewBag.Course = course;
+            return View(students);
         }
 
         // ===== EDIT =====

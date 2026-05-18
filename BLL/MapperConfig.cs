@@ -14,13 +14,13 @@ namespace BLL
             cfg.CreateMap<User, UserDTO>().ReverseMap();
             cfg.CreateMap<User, RegistrationDTO>().ReverseMap();
 
-            // Course mappings  ← ADD THIS LINE
+            // Course mappings 
             cfg.CreateMap<Course, CourseDTO>()
                .ForMember(dest => dest.InstructorName,
                           opt => opt.MapFrom(src => src.Instructor != null ? src.Instructor.Name : ""))
                .ReverseMap();
 
-            // Enrollment mappings  ← ADD THIS BLOCK
+            // Enrollment mappings
             cfg.CreateMap<Enrollment, EnrollmentDTO>()
                .ForMember(dest => dest.CourseTitle,
                           opt => opt.MapFrom(src => src.Course != null ? src.Course.Title : ""))
@@ -28,6 +28,8 @@ namespace BLL
                           opt => opt.MapFrom(src => src.Course != null ? src.Course.Description : ""))
                .ForMember(dest => dest.CourseDifficulty,
                           opt => opt.MapFrom(src => src.Course != null ? src.Course.Difficulty : ""))
+               .ForMember(dest => dest.CourseContentLink,       
+                          opt => opt.MapFrom(src => src.Course != null ? src.Course.ContentLink : null))
                .ForMember(dest => dest.InstructorName,
                           opt => opt.MapFrom(src => src.Course != null && src.Course.Instructor != null
                                                     ? src.Course.Instructor.Name : ""))

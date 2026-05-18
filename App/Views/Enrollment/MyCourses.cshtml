@@ -39,7 +39,15 @@ else
                     </div>
                     <div class="card-footer">
                         <small class="text-muted">Enrolled @e.EnrolledAt.ToString("dd MMM yyyy")</small>
-                        <div class="mt-2">
+                        <div class="mt-2 d-flex gap-2 flex-wrap">
+                            @if (!string.IsNullOrEmpty(e.CourseContentLink))
+                            {
+                                <a href="@e.CourseContentLink" target="_blank" rel="noopener" class="btn btn-sm btn-success">Study Materials</a>
+                            }
+                            else
+                            {
+                                <span class="badge bg-light text-muted">No materials yet</span>
+                            }
                             <a asp-controller="Quiz" asp-action="Take" asp-route-id="@e.CourseId" class="btn btn-sm btn-primary">Take Quiz</a>
                         </div>
                     </div>
