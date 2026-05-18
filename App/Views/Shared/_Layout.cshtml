@@ -26,6 +26,12 @@
                     </ul>
 
                     <ul class="navbar-nav">
+                        @if (Context.Session.GetInt32("UserId") != null)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Profile" asp-action="Index">👤 Profile</a>
+                            </li>
+                        }
                         @await Component.InvokeAsync("NotificationBell")
                     </ul>
                 </div>

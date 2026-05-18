@@ -87,5 +87,30 @@ namespace BLL.Services
                 return sb.ToString();
             }
         }
+
+        public ProfileDTO? GetProfile(int userId)
+        {
+            var user = userRepo.Get(userId);
+            if (user == null) return null;
+
+            var userType = userTypeRepo.Get(user.UserTypeId);
+            return new ProfileDTO
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                UserTypeName = userType?.Name ?? "Unknown",
+                CreatedAt = user.CreatedAt
+            };
+        }
+
+        public bool UpdateProfile(int userId, string newName)
+        {
+            var user = userRepo.Get(userId);
+            if (user == null) return false;
+
+            user.Name = newName;
+            return userRepo.Update(user);
+        }
     }
 }
