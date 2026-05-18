@@ -63,11 +63,41 @@ namespace App.Controllers
             return RedirectToAction("BrowseCourses", "Learner");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult MarkMaterialComplete(int courseId)
+        {
+            int learnerId = (int)HttpContext.Session.GetInt32("UserId")!;
+            bool success = enrollmentService.MarkMaterialComplete(learnerId, courseId);
+
+            if (success)
+            {
+                TempData["Class"] = "success";
+                TempData["Msg"] = "Marked as studied!";
+            }
+            else
+            {
+                TempData["Class"] = "danger";
+                TempData["Msg"] = "Couldn't update.";
+            }
+            return RedirectToAction("MyCourses");
+        }
+
         // ===== GET /Enrollment/MyCourses =====
         public IActionResult MyCourses()
         {
             int learnerId = (int)HttpContext.Session.GetInt32("UserId")!;
             var enrollments = enrollmentService.GetByLearner(learnerId);
+
+            // Compute set of CourseIds the learner has marked as studied
+            var completedCourseIds = new HashSet<int>();
+            foreach (var e in enrollments)
+            {
+                if (enrollmentService.IsMaterialCompleted(learnerId, e.CourseId))
+                    completedCourseIds.Add(e.CourseId);
+            }
+            ViewBag.CompletedCourseIds = completedCourseIds;
+
             return View(enrollments);
         }
     }

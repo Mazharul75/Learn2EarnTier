@@ -11,6 +11,7 @@ namespace BLL.DTOs
         public int QuizzesAttempted { get; set; }
         public int QuizzesPassed { get; set; }
         public int AverageScore { get; set; }
+        public int MaterialsStudied { get; set; }
         public DateTime? LastAttemptedAt { get; set; }
 
         // Per-course score data for the chart

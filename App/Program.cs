@@ -26,6 +26,9 @@ builder.Services.AddScoped<QuizRepo>();
 builder.Services.AddScoped<QuestionRepo>();
 builder.Services.AddScoped<QuizAttemptRepo>();
 builder.Services.AddScoped<NotificationRepo>();
+builder.Services.AddScoped<MaterialCompletionRepo>();
+builder.Services.AddScoped<CourseTaskRepo>();
+builder.Services.AddScoped<TaskSubmissionRepo>();
 
 // === BLL services (Scoped) ===
 builder.Services.AddScoped<AuthService>();
@@ -34,6 +37,7 @@ builder.Services.AddScoped<EnrollmentService>();
 builder.Services.AddScoped<QuizService>();
 builder.Services.AddScoped<ProgressService>();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<TaskService>();
 // More services added here in later phases:
 // builder.Services.AddScoped<CourseService>();      (Phase D)
 // builder.Services.AddScoped<EnrollmentService>();  (Phase F)

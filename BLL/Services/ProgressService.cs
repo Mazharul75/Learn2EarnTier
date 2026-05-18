@@ -12,16 +12,19 @@ namespace BLL.Services
         QuizAttemptRepo attemptRepo;
         QuizRepo quizRepo;
         CourseRepo courseRepo;
+        MaterialCompletionRepo matRepo;
 
         public ProgressService(EnrollmentRepo enrollmentRepo,
                                QuizAttemptRepo attemptRepo,
                                QuizRepo quizRepo,
-                               CourseRepo courseRepo)
+                               CourseRepo courseRepo,
+                               MaterialCompletionRepo matRepo)
         {
             this.enrollmentRepo = enrollmentRepo;
             this.attemptRepo = attemptRepo;
             this.quizRepo = quizRepo;
             this.courseRepo = courseRepo;
+            this.matRepo = matRepo;
         }
 
         public ProgressDTO GetLearnerStats(int learnerId)
@@ -41,6 +44,7 @@ namespace BLL.Services
                 return dto;
             }
 
+
             // ===== Group attempts by Quiz, keep best score per quiz =====
             var bestPerQuiz = allAttempts
                 .GroupBy(a => a.QuizId)
@@ -56,6 +60,7 @@ namespace BLL.Services
             dto.QuizzesPassed = bestPerQuiz.Count(x => x.EverPassed);
             dto.AverageScore = (int)Math.Round(bestPerQuiz.Average(x => x.BestScore));
             dto.LastAttemptedAt = allAttempts.Max(a => a.AttemptedAt);
+            dto.MaterialsStudied = matRepo.GetByLearner(learnerId).Count;
 
             // ===== Build per-course chart data =====
             foreach (var best in bestPerQuiz)

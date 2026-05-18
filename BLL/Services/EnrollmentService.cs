@@ -16,6 +16,7 @@ namespace BLL.Services
         NotificationService notificationService;
         QuizAttemptRepo attemptRepo;  
         QuizRepo quizRepo;
+        MaterialCompletionRepo materialCompletionRepo;
         Mapper mapper;
 
         public EnrollmentService(EnrollmentRepo enrollmentRepo,
@@ -23,7 +24,8 @@ namespace BLL.Services
                          UserRepo userRepo,
                          NotificationService notificationService,
                          QuizAttemptRepo attemptRepo,   
-                         QuizRepo quizRepo)           
+                         QuizRepo quizRepo,
+                         MaterialCompletionRepo materialCompletionRepo)
         {
             this.enrollmentRepo = enrollmentRepo;
             this.courseRepo = courseRepo;
@@ -31,6 +33,7 @@ namespace BLL.Services
             this.notificationService = notificationService;
             this.attemptRepo = attemptRepo;
             this.quizRepo = quizRepo;          
+            this.materialCompletionRepo = materialCompletionRepo;
             mapper = MapperConfig.GetMapper();
         }
 
@@ -129,6 +132,25 @@ namespace BLL.Services
                 LearnerName = e.Learner?.Name,
                 LearnerEmail = e.Learner?.Email
             }).ToList();
+        }
+
+        public bool MarkMaterialComplete(int learnerId, int courseId)
+        {
+            if (materialCompletionRepo.IsCompleted(learnerId, courseId))
+                return true;  // already complete, idempotent
+
+            var mc = new MaterialCompletion
+            {
+                LearnerId = learnerId,
+                CourseId = courseId,
+                CompletedAt = DateTime.Now
+            };
+            return materialCompletionRepo.Create(mc);
+        }
+
+        public bool IsMaterialCompleted(int learnerId, int courseId)
+        {
+            return materialCompletionRepo.IsCompleted(learnerId, courseId);
         }
 
         // ===== Helper: populate Course and Course.Instructor navigation =====

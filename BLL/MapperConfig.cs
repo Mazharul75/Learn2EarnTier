@@ -37,7 +37,16 @@ namespace BLL
                           opt => opt.MapFrom(src => src.Course != null && src.Course.Instructor != null
                                                     ? src.Course.Instructor.Name : ""))
                .ReverseMap();
-            
+
+            // Tasks
+            cfg.CreateMap<CourseTask, CourseTaskDTO>().ReverseMap();
+            cfg.CreateMap<TaskSubmission, TaskSubmissionDTO>()
+               .ForMember(dest => dest.TaskTitle,
+                          opt => opt.MapFrom(src => src.Task != null ? src.Task.Title : ""))
+               .ForMember(dest => dest.LearnerName,
+                          opt => opt.MapFrom(src => src.Learner != null ? src.Learner.Name : ""))
+               .ReverseMap();
+
             // Quiz mappings
             cfg.CreateMap<Quiz, QuizDTO>()
                .ForMember(dest => dest.CourseTitle,

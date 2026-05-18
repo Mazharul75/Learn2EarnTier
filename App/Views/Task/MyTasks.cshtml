@@ -1,0 +1,81 @@
+﻿@{
+    ViewData["Title"] = "My Tasks";
+    var course = ViewBag.Course as BLL.DTOs.CourseDTO;
+    var tasks = ViewBag.Tasks as List<BLL.DTOs.CourseTaskDTO> ?? new List<BLL.DTOs.CourseTaskDTO>();
+    var submissions = ViewBag.Submissions as List<BLL.DTOs.TaskSubmissionDTO> ?? new List<BLL.DTOs.TaskSubmissionDTO>();
+    var subsByTask = submissions.ToDictionary(s => s.TaskId, s => s);
+}
+
+<h1>Tasks for @course?.Title</h1>
+
+@if (TempData["Msg"] != null)
+{
+    <div class="alert alert-@TempData["Class"]">@TempData["Msg"]</div>
+}
+
+@if (!tasks.Any())
+{
+    <div class="alert alert-info">No tasks have been posted for this course yet.</div>
+}
+else
+{
+    @foreach (var t in tasks)
+    {
+        var hasSubmission = subsByTask.TryGetValue(t.Id, out var sub);
+
+        <div class="card mb-3 @(hasSubmission && sub!.Status == "Approved" ? "border-success" : hasSubmission && sub.Status == "Rejected" ? "border-danger" : "")">
+            <div class="card-body">
+                <h5>@t.Title</h5>
+                @if (!string.IsNullOrEmpty(t.Description))
+                {
+                    <p class="text-muted">@t.Description</p>
+                }
+
+                @if (hasSubmission)
+                {
+                    <p>
+                        <strong>Status:</strong>
+                        @if (sub!.Status == "Approved")
+                        {
+                            <span class="badge bg-success">✓ Approved</span>
+                        }
+                        else if (sub.Status == "Rejected")
+                        {
+                            <span class="badge bg-danger">✗ Rejected — you can resubmit</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning">⏳ Pending Review</span>
+                        }
+                    </p>
+                    <p>
+                        <strong>Your submission:</strong>
+                        <a href="@sub.SubmissionLink" target="_blank">@sub.SubmissionLink</a>
+                    </p>
+                    @if (!string.IsNullOrEmpty(sub.InstructorFeedback))
+                    {
+                        <div class="alert alert-light">
+                            <strong>Instructor feedback:</strong> @sub.InstructorFeedback
+                        </div>
+                    }
+                }
+
+                @if (!hasSubmission || sub!.Status == "Rejected")
+                {
+                    <form asp-action="Submit" method="post" class="mt-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="taskId" value="@t.Id" />
+                        <input type="hidden" name="courseId" value="@course?.Id" />
+
+                        <div class="input-group">
+                            <input type="url" name="SubmissionLink" class="form-control" placeholder="https://drive.google.com/your-work" required />
+                            <button type="submit" class="btn btn-primary">@(hasSubmission ? "Resubmit" : "Submit")</button>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    }
+}
+
+<a asp-controller="Enrollment" asp-action="MyCourses" class="btn btn-link">← Back to My Courses</a>

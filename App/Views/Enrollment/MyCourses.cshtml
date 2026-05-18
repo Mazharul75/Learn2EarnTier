@@ -39,15 +39,30 @@ else
                     </div>
                     <div class="card-footer">
                         <small class="text-muted">Enrolled @e.EnrolledAt.ToString("dd MMM yyyy")</small>
+                        @{
+                            var completedIds = ViewBag.CompletedCourseIds as HashSet<int> ?? new HashSet<int>();
+                            bool isCompleted = completedIds.Contains(e.CourseId);
+                        }
+
                         <div class="mt-2 d-flex gap-2 flex-wrap">
                             @if (!string.IsNullOrEmpty(e.CourseContentLink))
                             {
-                                <a href="@e.CourseContentLink" target="_blank" rel="noopener" class="btn btn-sm btn-success">Study Materials</a>
+                                <a href="@e.CourseContentLink" target="_blank" rel="noopener" class="btn btn-sm btn-success">📚 Study Materials</a>
                             }
-                            else
+
+                            @if (isCompleted)
                             {
-                                <span class="badge bg-light text-muted">No materials yet</span>
+                                <span class="badge bg-secondary align-self-center">✓ Studied</span>
                             }
+                            else if (!string.IsNullOrEmpty(e.CourseContentLink))
+                            {
+                                <form asp-action="MarkMaterialComplete" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="courseId" value="@e.CourseId" />
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Mark as Studied</button>
+                                </form>
+                            }
+                            <a asp-controller="Task" asp-action="MyTasks" asp-route-id="@e.CourseId" class="btn btn-sm btn-outline-primary">Tasks</a>
                             <a asp-controller="Quiz" asp-action="Take" asp-route-id="@e.CourseId" class="btn btn-sm btn-primary">Take Quiz</a>
                         </div>
                     </div>
