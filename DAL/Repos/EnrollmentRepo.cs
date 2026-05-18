@@ -51,6 +51,11 @@ namespace DAL.Repos
                 .ToList();
         }
 
+        public int CountByCourse(int courseId)
+        {
+            return db.Enrollments.Count(e => e.CourseId == courseId);
+        }
+
         public bool Update(Enrollment e)
         {
             var exobj = Get(e.Id);

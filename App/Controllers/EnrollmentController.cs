@@ -44,6 +44,16 @@ namespace App.Controllers
                     TempData["Msg"] = "That course no longer exists.";
                     break;
 
+                case EnrollmentService.EnrollResult.CourseFull:
+                    TempData["Class"] = "danger";
+                    TempData["Msg"] = "Sorry, this course is full.";
+                    break;
+
+                case EnrollmentService.EnrollResult.PrerequisiteNotMet:
+                    TempData["Class"] = "warning";
+                    TempData["Msg"] = "You must pass the prerequisite course's quiz before enrolling here.";
+                    break;
+
                 default:
                     TempData["Class"] = "danger";
                     TempData["Msg"] = "Something went wrong. Please try again.";

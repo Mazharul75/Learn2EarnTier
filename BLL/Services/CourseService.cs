@@ -27,7 +27,7 @@ namespace BLL.Services
         public List<CourseDTO> Get()
         {
             var courses = courseRepo.Get();
-            FillInstructorNames(courses);
+            FillNavigations(courses);
             return mapper.Map<List<CourseDTO>>(courses);
         }
 
@@ -35,7 +35,7 @@ namespace BLL.Services
         public List<CourseDTO> GetByInstructor(int instructorId)
         {
             var courses = courseRepo.GetByInstructor(instructorId);
-            FillInstructorNames(courses);
+            FillNavigations(courses);
             return mapper.Map<List<CourseDTO>>(courses);
         }
 
@@ -45,7 +45,7 @@ namespace BLL.Services
             var courses = courseRepo.Get();
 
             // Fill instructor data so we can filter by instructor name and populate DTO field
-            FillInstructorNames(courses);
+            FillNavigations(courses);
 
             // Apply each filter only if a value was provided
             if (!string.IsNullOrWhiteSpace(title))
@@ -78,7 +78,7 @@ namespace BLL.Services
         {
             var course = courseRepo.Get(id);
             if (course == null) return null;
-            FillInstructorNames(new List<Course> { course });
+            FillNavigations(new List<Course> { course });
             return mapper.Map<CourseDTO>(course);
         }
 
@@ -91,6 +91,8 @@ namespace BLL.Services
                 Description = dto.Description,
                 Difficulty = dto.Difficulty,
                 ContentLink = dto.ContentLink,
+                MaxCapacity = dto.MaxCapacity == 0 ? null : dto.MaxCapacity,
+                PrerequisiteId = dto.PrerequisiteId,
                 InstructorId = instructorId,
                 CreatedAt = DateTime.Now
             };
@@ -117,6 +119,8 @@ namespace BLL.Services
             existing.Description = dto.Description;
             existing.Difficulty = dto.Difficulty;
             existing.ContentLink = dto.ContentLink;
+            existing.MaxCapacity = dto.MaxCapacity == 0 ? null : dto.MaxCapacity;
+            existing.PrerequisiteId = dto.PrerequisiteId;
 
             return courseRepo.Update(existing);
         }
@@ -140,14 +144,16 @@ namespace BLL.Services
 
         // Helper: populate the Instructor navigation property by hand
         // (since CourseRepo doesn't Include() it)
-        void FillInstructorNames(List<Course> courses)
+        void FillNavigations(List<Course> courses)
         {
             foreach (var c in courses)
             {
                 if (c.Instructor == null)
-                {
                     c.Instructor = userRepo.Get(c.InstructorId);
-                }
+
+                // Fill prerequisite if set
+                if (c.PrerequisiteId.HasValue && c.Prerequisite == null)
+                    c.Prerequisite = courseRepo.Get(c.PrerequisiteId.Value);
             }
         }
     }

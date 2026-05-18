@@ -73,6 +73,10 @@ else
                         <h5 class="card-title">@course.Title</h5>
                         <h6 class="card-subtitle mb-2 text-muted">by @course.InstructorName</h6>
                         <span class="badge bg-secondary mb-2">@course.Difficulty</span>
+                        @if (!string.IsNullOrEmpty(course.PrerequisiteTitle))
+                        {
+                            <p class="small text-warning">⚠ Requires: <strong>@course.PrerequisiteTitle</strong></p>
+                        }
                         <p class="card-text">
                             @(course.Description.Length > 120
                                                 ? course.Description.Substring(0, 120) + "..."

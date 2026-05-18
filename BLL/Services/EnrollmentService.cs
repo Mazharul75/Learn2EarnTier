@@ -14,17 +14,23 @@ namespace BLL.Services
         CourseRepo courseRepo;
         UserRepo userRepo;
         NotificationService notificationService;
+        QuizAttemptRepo attemptRepo;  
+        QuizRepo quizRepo;
         Mapper mapper;
 
         public EnrollmentService(EnrollmentRepo enrollmentRepo,
-                                 CourseRepo courseRepo,
-                                 UserRepo userRepo,
-                                 NotificationService notificationService)
+                         CourseRepo courseRepo,
+                         UserRepo userRepo,
+                         NotificationService notificationService,
+                         QuizAttemptRepo attemptRepo,   
+                         QuizRepo quizRepo)           
         {
             this.enrollmentRepo = enrollmentRepo;
             this.courseRepo = courseRepo;
             this.userRepo = userRepo;
             this.notificationService = notificationService;
+            this.attemptRepo = attemptRepo;
+            this.quizRepo = quizRepo;          
             mapper = MapperConfig.GetMapper();
         }
 
@@ -35,6 +41,8 @@ namespace BLL.Services
             CourseNotFound,
             AlreadyEnrolled,
             OwnCourse,
+            PrerequisiteNotMet,   
+            CourseFull,
             DatabaseError
         }
 
@@ -48,8 +56,24 @@ namespace BLL.Services
             // Rule 2: Not your own course
             if (course.InstructorId == learnerId) return EnrollResult.OwnCourse;
 
+            // Rule : Prerequisite check
+            if (course.PrerequisiteId.HasValue)
+            {
+                if (!HasCompletedCourse(learnerId, course.PrerequisiteId.Value))
+                    return EnrollResult.PrerequisiteNotMet;
+            }
+
+
             // Rule 3: Not already enrolled
             if (enrollmentRepo.Exists(learnerId, courseId)) return EnrollResult.AlreadyEnrolled;
+
+            // Rule 4 : Capacity check — if MaxCapacity is set and reached, block
+            if (course.MaxCapacity.HasValue && course.MaxCapacity.Value > 0)
+            {
+                int currentCount = enrollmentRepo.CountByCourse(courseId);
+                if (currentCount >= course.MaxCapacity.Value)
+                    return EnrollResult.CourseFull;
+            }
 
             // All rules pass — create the enrollment
             var enrollment = new Enrollment
@@ -121,6 +145,16 @@ namespace BLL.Services
                     e.Course.Instructor = userRepo.Get(e.Course.InstructorId);
                 }
             }
+        }
+
+        public bool HasCompletedCourse(int learnerId, int courseId)
+        {
+            // Course is "completed" when the learner has passed its quiz
+            var quiz = quizRepo.GetByCourse(courseId);
+            if (quiz == null) return false;  // no quiz means uncompletable
+
+            var attempts = attemptRepo.GetByLearnerAndQuiz(learnerId, quiz.Id);
+            return attempts.Any(a => a.Passed);
         }
     }
 }

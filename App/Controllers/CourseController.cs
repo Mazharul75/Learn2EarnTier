@@ -29,15 +29,18 @@ namespace App.Controllers
         [HttpGet]
         public IActionResult Create()
         {
+            int instructorId = (int)HttpContext.Session.GetInt32("UserId")!;
+            ViewBag.AvailableCourses = courseService.GetByInstructor(instructorId);
             return View(new CourseDTO());
         }
 
         [HttpPost]
         public IActionResult Create(CourseDTO dto)
         {
+            int instructorId = (int)HttpContext.Session.GetInt32("UserId")!;
             if (ModelState.IsValid)
             {
-                int instructorId = (int)HttpContext.Session.GetInt32("UserId")!;
+                
                 bool success = courseService.Create(dto, instructorId);
                 if (success)
                 {
@@ -47,6 +50,7 @@ namespace App.Controllers
                 }
                 ModelState.AddModelError("", "Failed to create course.");
             }
+            ViewBag.AvailableCourses = courseService.GetByInstructor(instructorId);
             return View(dto);
         }
 
@@ -81,15 +85,19 @@ namespace App.Controllers
             var course = courseService.Get(id);
             if (course == null) return RedirectToAction("Index");
 
+            var available = courseService.GetByInstructor(instructorId)
+                .Where(c => c.Id != id).ToList();
+            ViewBag.AvailableCourses = available;                                 
+
             return View(course);
         }
 
         [HttpPost]
         public IActionResult Edit(CourseDTO dto)
         {
+            int instructorId = (int)HttpContext.Session.GetInt32("UserId")!;
             if (ModelState.IsValid)
             {
-                int instructorId = (int)HttpContext.Session.GetInt32("UserId")!;
                 bool success = courseService.Update(dto, instructorId);
                 if (success)
                 {
@@ -99,6 +107,7 @@ namespace App.Controllers
                 }
                 ModelState.AddModelError("", "Failed to update course.");
             }
+            ViewBag.AvailableCourses = courseService.GetByInstructor(instructorId);
             return View(dto);
         }
 

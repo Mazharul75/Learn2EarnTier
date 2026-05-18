@@ -18,6 +18,9 @@ namespace BLL
             cfg.CreateMap<Course, CourseDTO>()
                .ForMember(dest => dest.InstructorName,
                           opt => opt.MapFrom(src => src.Instructor != null ? src.Instructor.Name : ""))
+               .ForMember(dest => dest.PrerequisiteTitle,      // ← ADD
+                          opt => opt.MapFrom(src => src.Prerequisite != null
+                                                    ? src.Prerequisite.Title : null))
                .ReverseMap();
 
             // Enrollment mappings

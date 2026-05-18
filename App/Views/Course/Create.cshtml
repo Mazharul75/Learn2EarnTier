@@ -39,6 +39,23 @@
                 <span asp-validation-for="ContentLink" class="text-danger"></span>
                 <small class="text-muted">Optional — paste a link to your slides, videos, or other materials.</small>
             </div>
+            <div class="mb-3">
+                <label asp-for="PrerequisiteId" class="form-label">Prerequisite Course (optional)</label>
+                <select asp-for="PrerequisiteId" class="form-select">
+                    <option value="">-- None --</option>
+                    @foreach (var c in (List<BLL.DTOs.CourseDTO>)ViewBag.AvailableCourses)
+                    {
+                        <option value="@c.Id" selected="@(Model.PrerequisiteId == c.Id)">@c.Title</option>
+                    }
+                </select>
+                <small class="text-muted">Learners must pass this course's quiz before enrolling here.</small>
+            </div>
+            <div class="mb-3">
+                <label asp-for="MaxCapacity" class="form-label">Max Capacity (0 = unlimited)</label>
+                <input asp-for="MaxCapacity" class="form-control" type="number" min="0" max="1000" />
+                <span asp-validation-for="MaxCapacity" class="text-danger"></span>
+                <small class="text-muted">Maximum number of learners who can enroll. Set 0 for no limit.</small>
+            </div>
 
             <button type="submit" class="btn btn-primary">Create</button>
             <a asp-action="Index" class="btn btn-secondary">Cancel</a>
