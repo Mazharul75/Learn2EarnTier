@@ -3,45 +3,48 @@
     ViewData["Title"] = "My Profile";
 }
 
-<h1>My Profile</h1>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h1 class="mb-4">My Profile</h1>
 
-@if (TempData["Msg"] != null)
-{
-    <div class="alert alert-@TempData["Class"]">@TempData["Msg"]</div>
-}
+        <div class="row g-3">
+            <!-- Account info -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Account Info</h5>
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4 text-muted small">Email</dt>
+                            <dd class="col-sm-8">@Model.Email</dd>
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Account Info</h5>
-                <dl class="row">
-                    <dt class="col-sm-4">Email</dt>
-                    <dd class="col-sm-8">@Model.Email</dd>
+                            <dt class="col-sm-4 text-muted small">Role</dt>
+                            <dd class="col-sm-8"><span class="badge bg-light text-dark border">@Model.UserTypeName</span></dd>
 
-                    <dt class="col-sm-4">Role</dt>
-                    <dd class="col-sm-8"><span class="badge bg-info">@Model.UserTypeName</span></dd>
-
-                    <dt class="col-sm-4">Member since</dt>
-                    <dd class="col-sm-8">@Model.CreatedAt.ToString("dd MMM yyyy")</dd>
-                </dl>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Edit Profile</h5>
-                <form method="post" asp-action="Index">
-                    @Html.AntiForgeryToken()
-                    <div class="mb-3">
-                        <label class="form-label">Name</label>
-                        <input type="text" name="Name" value="@Model.Name" class="form-control" />
-                        <small class="text-muted">Email and role cannot be changed.</small>
+                            <dt class="col-sm-4 text-muted small">Member since</dt>
+                            <dd class="col-sm-8">@Model.CreatedAt.ToString("dd MMM yyyy")</dd>
+                        </dl>
                     </div>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </form>
+                </div>
+            </div>
+
+            <!-- Edit profile -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Edit Profile</h5>
+                        <form method="post" asp-action="Index">
+                            @Html.AntiForgeryToken()
+
+                            <div class="mb-3">
+                                <label class="form-label">Name</label>
+                                <input type="text" name="Name" value="@Model.Name" class="form-control" />
+                                <small class="text-muted">Email and role cannot be changed.</small>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

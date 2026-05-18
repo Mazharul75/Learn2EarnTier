@@ -16,6 +16,7 @@ namespace App.Controllers
 
         // ===== POST /Enrollment/Enroll  with form field CourseId =====
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Enroll(int courseId)
         {
             int learnerId = (int)HttpContext.Session.GetInt32("UserId")!;

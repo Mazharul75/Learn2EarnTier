@@ -1,8 +1,54 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center py-5">
+    <h1 class="display-3 fw-bold mb-3" style="letter-spacing:-0.03em">
+        Learn. Earn. <span style="color:var(--brand-primary)">Grow.</span>
+    </h1>
+    <p class="lead text-muted mb-4">A simple online learning platform — explore courses, take quizzes, track your progress.</p>
+
+    @if (Context.Session.GetInt32("UserId") == null)
+    {
+        <div class="d-flex gap-2 justify-content-center">
+            <a asp-controller="Auth" asp-action="Registration" class="btn btn-primary btn-lg">Get Started</a>
+            <a asp-controller="Auth" asp-action="Login" class="btn btn-outline-primary btn-lg">Sign In</a>
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">You're signed in. Head to your dashboard to continue.</p>
+    }
+</div>
+
+<div class="row g-4 mt-3">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center p-4">
+                <div style="font-size:3rem">📚</div>
+                <h5 class="mt-2">Browse Courses</h5>
+                <p class="text-muted small mb-0">Filter by topic, difficulty, or instructor.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center p-4">
+                <div style="font-size:3rem">📝</div>
+                <h5 class="mt-2">Take Quizzes</h5>
+                <p class="text-muted small mb-0">Auto-graded with instant per-question feedback.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center p-4">
+                <div style="font-size:3rem">📊</div>
+                <h5 class="mt-2">Track Progress</h5>
+                <p class="text-muted small mb-0">Visualize your scores per course.</p>
+            </div>
+        </div>
+    </div>
 </div>

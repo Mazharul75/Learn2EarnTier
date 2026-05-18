@@ -1,54 +1,181 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var userId = Context.Session.GetInt32("UserId");
+    var userName = Context.Session.GetString("UserName");
+    var userTypeId = Context.Session.GetInt32("UserTypeId");
+    bool isLoggedIn = userId != null;
+    bool isLearner = isLoggedIn && userTypeId == 1;
+    bool isInstructor = isLoggedIn && userTypeId == 2;
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - App</title>
+    <title>@ViewData["Title"] - Learn2Earn</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/App.styles.css" asp-append-version="true" />
+    <style>
+        :root {
+            --brand-primary: #4338ca;
+            --brand-primary-hover: #3730a3;
+            --brand-soft: #eef2ff;
+        }
+        body {
+            background-color: #f8fafc;
+            min-height: 100vh;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--brand-primary) !important;
+            font-size: 1.35rem;
+            letter-spacing: -0.02em;
+        }
+        .navbar-brand:hover {
+            color: var(--brand-primary-hover) !important;
+        }
+        .navbar {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+        .navbar .nav-link {
+            font-weight: 500;
+        }
+        .navbar .navbar-greeting {
+            color: #64748b;
+            font-size: 0.9rem;
+            padding: 0 0.6rem;
+            display: flex;
+            align-items: center;
+        }
+        .card {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.6rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+        .card-title {
+            font-weight: 600;
+        }
+        .btn-primary {
+            background-color: var(--brand-primary);
+            border-color: var(--brand-primary);
+        }
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--brand-primary-hover);
+            border-color: var(--brand-primary-hover);
+        }
+        .btn-outline-primary {
+            color: var(--brand-primary);
+            border-color: var(--brand-primary);
+        }
+        .btn-outline-primary:hover {
+            background-color: var(--brand-primary);
+            border-color: var(--brand-primary);
+        }
+        .display-5, h1, h2, h3 {
+            letter-spacing: -0.02em;
+        }
+        footer.footer {
+            background-color: #fff;
+            padding: 1rem 0;
+        }
+        .badge {
+            font-weight: 500;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Learn2Earn</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-md navbar-light bg-white border-bottom">
+            <div class="container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    📚 Learn2Earn
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse d-md-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                    </ul>
-
-                    <ul class="navbar-nav">
-                        @if (Context.Session.GetInt32("UserId") != null)
+                        @if (isLearner)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Profile" asp-action="Index">👤 Profile</a>
+                                <a class="nav-link" asp-controller="Learner" asp-action="Dashboard">Dashboard</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Learner" asp-action="BrowseCourses">Browse</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Enrollment" asp-action="MyCourses">My Courses</a>
                             </li>
                         }
-                        @await Component.InvokeAsync("NotificationBell")
+                        else if (isInstructor)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Instructor" asp-action="Dashboard">Dashboard</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Course" asp-action="Index">My Courses</a>
+                            </li>
+                        }
+                    </ul>
+
+                    <ul class="navbar-nav align-items-center">
+                        @if (isLoggedIn)
+                        {
+                            <li class="nav-item">
+                                <span class="navbar-greeting">Hi, <strong>@userName</strong></span>
+                            </li>
+                            @await Component.InvokeAsync("NotificationBell")
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Profile" asp-action="Index" title="My Profile">
+                                    👤
+                                </a>
+                            </li>
+                            <li class="nav-item ms-2">
+                                <form asp-controller="Auth" asp-action="Logout" method="get" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Logout</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Auth" asp-action="Login">Login</a>
+                            </li>
+                            <li class="nav-item ms-2">
+                                <a class="btn btn-sm btn-primary" asp-controller="Auth" asp-action="Registration">Register</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
+
+    <div class="container py-4">
+        @* Global TempData flash messages — display once for the whole app *@
+        @if (TempData["Msg"] != null)
+        {
+            <div class="alert alert-@TempData["Class"] alert-dismissible fade show" role="alert">
+                @TempData["Msg"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - App - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="footer border-top mt-5">
+        <div class="container text-muted small">
+            &copy; @DateTime.Now.Year Learn2Earn · An online learning platform
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

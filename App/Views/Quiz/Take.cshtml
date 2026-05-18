@@ -1,5 +1,4 @@
 ﻿@model List<BLL.DTOs.QuestionForLearnerDTO>
-
 @{
     ViewData["Title"] = "Take Quiz";
     int quizId = (int)ViewBag.QuizId!;
@@ -7,47 +6,53 @@
     int passMark = (int)ViewBag.PassMark!;
 }
 
-<h1>Quiz</h1>
-<p class="text-muted">Total questions: <strong>@Model.Count</strong> &middot; Pass mark: <strong>@passMark%</strong></p>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h1 class="mb-1">Quiz</h1>
+        <p class="text-muted">@Model.Count questions · Pass mark: <strong>@passMark%</strong></p>
 
-<div class="alert alert-info">
-    Answer all questions and click Submit. You'll see your score immediately.
-</div>
-
-<form asp-action="Submit" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" name="quizId" value="@quizId" />
-
-    @for (int i = 0; i < Model.Count; i++)
-    {
-        var q = Model[i];
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5>Q@(i + 1). @q.QuestionText</h5>
-
-                <div class="form-check">
-                    <input type="radio" name="Answers[@q.Id]" value="A" class="form-check-input" id="q@(q.Id)_A" />
-                    <label class="form-check-label" for="q@(q.Id)_A">A) @q.OptionA</label>
-                </div>
-                <div class="form-check">
-                    <input type="radio" name="Answers[@q.Id]" value="B" class="form-check-input" id="q@(q.Id)_B" />
-                    <label class="form-check-label" for="q@(q.Id)_B">B) @q.OptionB</label>
-                </div>
-                <div class="form-check">
-                    <input type="radio" name="Answers[@q.Id]" value="C" class="form-check-input" id="q@(q.Id)_C" />
-                    <label class="form-check-label" for="q@(q.Id)_C">C) @q.OptionC</label>
-                </div>
-                <div class="form-check">
-                    <input type="radio" name="Answers[@q.Id]" value="D" class="form-check-input" id="q@(q.Id)_D" />
-                    <label class="form-check-label" for="q@(q.Id)_D">D) @q.OptionD</label>
-                </div>
-            </div>
+        <div class="alert alert-info">
+            <strong>⚠️ One attempt only.</strong> Answer all questions and click Submit when ready. You can't retake this quiz.
         </div>
-    }
 
-    <button type="submit" class="btn btn-primary btn-lg"
-            onclick="return confirm('Submit your answers? You cannot change them after submitting.');">
-        Submit Quiz
-    </button>
-    <a asp-controller="Enrollment" asp-action="MyCourses" class="btn btn-link">Cancel</a>
-</form>
+        <form asp-action="Submit" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="quizId" value="@quizId" />
+
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var q = Model[i];
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <h6 class="mb-3">Q@(i + 1). @q.QuestionText</h6>
+
+                        <div class="form-check mb-2">
+                            <input type="radio" name="Answers[@q.Id]" value="A" class="form-check-input" id="q@(q.Id)_A" />
+                            <label class="form-check-label" for="q@(q.Id)_A"><strong>A)</strong> @q.OptionA</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="radio" name="Answers[@q.Id]" value="B" class="form-check-input" id="q@(q.Id)_B" />
+                            <label class="form-check-label" for="q@(q.Id)_B"><strong>B)</strong> @q.OptionB</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="radio" name="Answers[@q.Id]" value="C" class="form-check-input" id="q@(q.Id)_C" />
+                            <label class="form-check-label" for="q@(q.Id)_C"><strong>C)</strong> @q.OptionC</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" name="Answers[@q.Id]" value="D" class="form-check-input" id="q@(q.Id)_D" />
+                            <label class="form-check-label" for="q@(q.Id)_D"><strong>D)</strong> @q.OptionD</label>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-lg"
+                        onclick="return confirm('Submit your answers? You cannot change them after submitting.');">
+                    Submit Quiz
+                </button>
+                <a asp-controller="Enrollment" asp-action="MyCourses" class="btn btn-outline-secondary btn-lg">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,81 +1,81 @@
 ﻿@model BLL.DTOs.QuizResultDTO
-
 @{
     ViewData["Title"] = "Quiz Result";
 }
 
-<h1>Quiz Result</h1>
-<p class="text-muted">Course: <strong>@Model.CourseTitle</strong> &middot; Attempted on @Model.AttemptedAt.ToString("dd MMM yyyy HH:mm")</p>
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <h1 class="mb-1">Quiz Result</h1>
+        <p class="text-muted mb-4">Course: <strong>@Model.CourseTitle</strong> · @Model.AttemptedAt.ToString("dd MMM yyyy, HH:mm")</p>
 
-<div class="card mb-4 @(Model.Passed ? "border-success" : "border-danger")">
-    <div class="card-body text-center">
-        <h2 class="display-1 @(Model.Passed ? "text-success" : "text-danger")">@Model.Score%</h2>
-        <p class="lead">
-            You got <strong>@Model.CorrectCount</strong> out of <strong>@Model.TotalQuestions</strong> correct.
-        </p>
-        @if (Model.Passed)
-        {
-            <div class="alert alert-success">
-                🎉 Congratulations! You passed (needed @Model.PassMark%).
-            </div>
-        }
-        else
-        {
-            <div class="alert alert-danger">
-                Sorry, you did not pass. The pass mark is @Model.PassMark%. You can try again.
-            </div>
-        }
-    </div>
-</div>
-
-<h3>Review</h3>
-@for (int i = 0; i < Model.Breakdown.Count; i++)
-{
-    var q = Model.Breakdown[i];
-    <div class="card mb-3 @(q.IsCorrect ? "border-success" : "border-danger")">
-        <div class="card-body">
-            <h5>Q@(i + 1). @q.QuestionText</h5>
-            <ul class="list-unstyled">
-                @foreach (var letter in new[] { "A", "B", "C", "D" })
+        <!-- Big score card -->
+        <div class="card border-0 shadow-sm mb-4 @(Model.Passed ? "border-success" : "border-danger")" style="border-left-width:5px !important;">
+            <div class="card-body text-center py-5">
+                <div class="display-1 fw-bold @(Model.Passed ? "text-success" : "text-danger")">@Model.Score%</div>
+                <p class="lead mb-3">
+                    You got <strong>@Model.CorrectCount</strong> out of <strong>@Model.TotalQuestions</strong> correct.
+                </p>
+                @if (Model.Passed)
                 {
-                    var optionText = letter switch
-                    {
-                                    "A" => q.OptionA,
-                                    "B" => q.OptionB,
-                                    "C" => q.OptionC,
-                                    "D" => q.OptionD,
-                        _ => ""
-                    };
-
-                    bool isCorrect = q.CorrectOption == letter;
-                    bool isPicked = q.PickedOption == letter;
-
-                    string cls =
-                    isCorrect ? "text-success fw-bold" :
-                    isPicked ? "text-danger fw-bold" : "";
-
-                    <li class="@cls">
-                        @letter) @optionText
-                        @if (isCorrect)
-                        {
-                            <span>✓ correct</span>
-                        }
-                        @if (isPicked && !isCorrect)
-                        {
-                            <span>← your pick</span>
-                        }
-                    </li>
+                    <div class="alert alert-success mb-0 d-inline-block">
+                        🎉 <strong>Congratulations!</strong> You passed (needed @Model.PassMark%).
+                    </div>
                 }
-            </ul>
-            @if (q.PickedOption == null)
-            {
-                <small class="text-muted">You did not answer this question.</small>
-            }
+                else
+                {
+                    <div class="alert alert-danger mb-0 d-inline-block">
+                        Sorry, you did not pass. The pass mark is @Model.PassMark%.
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Review -->
+        <h4 class="mb-3">Review your answers</h4>
+        @for (int i = 0; i < Model.Breakdown.Count; i++)
+        {
+            var q = Model.Breakdown[i];
+            <div class="card border-0 shadow-sm mb-3" style="border-left:4px solid @(q.IsCorrect ? "#22c55e" : "#ef4444") !important;">
+                <div class="card-body">
+                    <h6 class="mb-3">Q@(i + 1). @q.QuestionText</h6>
+                    <ul class="list-unstyled mb-0 small">
+                        @foreach (var letter in new[] { "A", "B", "C", "D" })
+                        {
+                            var optionText = letter switch
+                            {
+                                            "A" => q.OptionA,
+                                            "B" => q.OptionB,
+                                            "C" => q.OptionC,
+                                            "D" => q.OptionD,
+                                _ => ""
+                            };
+                            bool isCorrect = q.CorrectOption == letter;
+                            bool isPicked = q.PickedOption == letter;
+                            string cls = isCorrect ? "text-success fw-bold" : isPicked ? "text-danger fw-bold" : "";
+                            <li class="@cls mb-1">
+                                <strong>@letter)</strong> @optionText
+                                @if (isCorrect)
+                                {
+                                    <span class="badge bg-success ms-1">correct answer</span>
+                                }
+                                @if (isPicked && !isCorrect)
+                                {
+                                    <span class="badge bg-danger ms-1">your answer</span>
+                                }
+                            </li>
+                        }
+                    </ul>
+                    @if (q.PickedOption == null)
+                    {
+                        <small class="text-muted d-block mt-2">⚠ You did not answer this question.</small>
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="mt-4 d-flex gap-2">
+            <a asp-controller="Enrollment" asp-action="MyCourses" class="btn btn-primary">Back to My Courses</a>
+            <a asp-controller="Learner" asp-action="Dashboard" class="btn btn-outline-secondary">View Progress</a>
         </div>
     </div>
-}
-
-<div class="mt-4">
-    <a asp-controller="Enrollment" asp-action="MyCourses" class="btn btn-primary">Back to My Courses</a>
-    <a asp-controller="Quiz" asp-action="Take" asp-route-id="@Model.CourseId" class="btn btn-outline-secondary">Try Again</a>
 </div>

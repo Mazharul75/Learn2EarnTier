@@ -1,27 +1,50 @@
 ﻿@{
-    ViewData["Title"] = "Instructor Dashboard";
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="row">
-    <div class="col">
-        <h2>Welcome, @ViewBag.UserName!</h2>
-        <p class="lead">This is your instructor dashboard.</p>
+<div class="mb-4">
+    <h2 class="mb-1">Welcome, @ViewBag.UserName!</h2>
+    <p class="text-muted">Manage your courses, quizzes, tasks, and students from here.</p>
+</div>
 
-        <hr />
-
-        <div class="row mt-4">
-            <div class="col-md-4 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">My Courses</h5>
-                        <p class="card-text">Create, edit, and manage your courses.</p>
-                        <a asp-controller="Course" asp-action="Index" class="btn btn-primary">Manage Courses</a>
-                    </div>
+<div class="row g-3">
+    <div class="col-md-6 col-lg-4">
+        <a asp-controller="Course" asp-action="Index" class="text-decoration-none">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div style="font-size:2rem">📖</div>
+                    <h5 class="card-title mt-2">My Courses</h5>
+                    <p class="text-muted mb-0">Create, edit, and manage all your courses in one place.</p>
                 </div>
             </div>
-        </div>
-
-        <hr />
-        <a asp-controller="Auth" asp-action="Logout" class="btn btn-outline-danger">Logout</a>
+        </a>
     </div>
+
+    <div class="col-md-6 col-lg-4">
+        <a asp-controller="Course" asp-action="Create" class="text-decoration-none">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div style="font-size:2rem">➕</div>
+                    <h5 class="card-title mt-2">Create Course</h5>
+                    <p class="text-muted mb-0">Publish a new course for learners to discover.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <a asp-controller="Notification" asp-action="Index" class="text-decoration-none">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div style="font-size:2rem">🔔</div>
+                    <h5 class="card-title mt-2">Notifications</h5>
+                    <p class="text-muted mb-0">Stay updated on enrollments and task submissions.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="alert alert-light border mt-4">
+    <strong>Quick tip:</strong> Click <em>Courses</em> in the navbar at any time to come back to your course list.
 </div>

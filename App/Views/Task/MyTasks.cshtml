@@ -6,26 +6,36 @@
     var subsByTask = submissions.ToDictionary(s => s.TaskId, s => s);
 }
 
-<h1>Tasks for @course?.Title</h1>
-
-@if (TempData["Msg"] != null)
-{
-    <div class="alert alert-@TempData["Class"]">@TempData["Msg"]</div>
-}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-1">Tasks</h1>
+        <p class="text-muted mb-0">@course?.Title</p>
+    </div>
+    <a asp-controller="Enrollment" asp-action="MyCourses" class="btn btn-outline-secondary">← Back</a>
+</div>
 
 @if (!tasks.Any())
 {
-    <div class="alert alert-info">No tasks have been posted for this course yet.</div>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <div style="font-size:3rem">📋</div>
+            <h5 class="text-muted">No tasks yet</h5>
+            <p class="text-muted small">The instructor hasn't posted any tasks for this course.</p>
+        </div>
+    </div>
 }
 else
 {
     @foreach (var t in tasks)
     {
         var hasSubmission = subsByTask.TryGetValue(t.Id, out var sub);
+        string borderColor = (hasSubmission && sub!.Status == "Approved") ? "#22c55e"
+                            : (hasSubmission && sub.Status == "Rejected") ? "#ef4444"
+                            : (hasSubmission) ? "#f59e0b" : "#e2e8f0";
 
-        <div class="card mb-3 @(hasSubmission && sub!.Status == "Approved" ? "border-success" : hasSubmission && sub.Status == "Rejected" ? "border-danger" : "")">
+        <div class="card border-0 shadow-sm mb-3" style="border-left:4px solid @borderColor !important;">
             <div class="card-body">
-                <h5>@t.Title</h5>
+                <h5 class="mb-1">@t.Title</h5>
                 @if (!string.IsNullOrEmpty(t.Description))
                 {
                     <p class="text-muted">@t.Description</p>
@@ -33,7 +43,7 @@ else
 
                 @if (hasSubmission)
                 {
-                    <p>
+                    <div class="d-flex align-items-center gap-2 mb-3">
                         <strong>Status:</strong>
                         @if (sub!.Status == "Approved")
                         {
@@ -45,28 +55,31 @@ else
                         }
                         else
                         {
-                            <span class="badge bg-warning">⏳ Pending Review</span>
+                            <span class="badge bg-warning text-dark">⏳ Pending Review</span>
                         }
-                    </p>
-                    <p>
+                    </div>
+
+                    <p class="small mb-2">
                         <strong>Your submission:</strong>
-                        <a href="@sub.SubmissionLink" target="_blank">@sub.SubmissionLink</a>
+                        <a href="@sub.SubmissionLink" target="_blank" class="text-decoration-none">@sub.SubmissionLink</a>
                     </p>
+
                     @if (!string.IsNullOrEmpty(sub.InstructorFeedback))
                     {
-                        <div class="alert alert-light">
-                            <strong>Instructor feedback:</strong> @sub.InstructorFeedback
+                        <div class="alert alert-light border small">
+                            <strong>Instructor's feedback:</strong> @sub.InstructorFeedback
                         </div>
                     }
                 }
 
                 @if (!hasSubmission || sub!.Status == "Rejected")
                 {
-                    <form asp-action="Submit" method="post" class="mt-2">
+                    <form asp-action="Submit" method="post" class="mt-3">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="taskId" value="@t.Id" />
                         <input type="hidden" name="courseId" value="@course?.Id" />
 
+                        <label class="form-label small text-muted">Submission link</label>
                         <div class="input-group">
                             <input type="url" name="SubmissionLink" class="form-control" placeholder="https://drive.google.com/your-work" required />
                             <button type="submit" class="btn btn-primary">@(hasSubmission ? "Resubmit" : "Submit")</button>
@@ -77,5 +90,3 @@ else
         </div>
     }
 }
-
-<a asp-controller="Enrollment" asp-action="MyCourses" class="btn btn-link">← Back to My Courses</a>

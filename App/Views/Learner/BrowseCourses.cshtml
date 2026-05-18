@@ -5,44 +5,45 @@
     var currentTitle = ViewBag.STitle as string;
     var currentDifficulty = ViewBag.Difficulty as string;
     var currentInstructor = ViewBag.Instructor as string;
+    var enrolledCourseIds = ViewBag.EnrolledCourseIds as HashSet<int> ?? new HashSet<int>();
 }
 
-<h1>Browse Courses</h1>
+<div class="mb-4">
+    <h1 class="mb-1">Browse Courses</h1>
+    <p class="text-muted">Find your next learning journey.</p>
+</div>
 
-<!-- Filter form -->
-<div class="card mb-4">
+<!-- Filter card -->
+<div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
         <form method="get" asp-action="BrowseCourses">
-            <div class="row g-3">
+            <div class="row g-3 align-items-end">
                 <div class="col-md-4">
-                    <label class="form-label">Title</label>
-                    <input type="text" name="STitle" value="@currentTitle" placeholder="e.g. python" class="form-control" />
+                    <label class="form-label small text-muted text-uppercase">Title</label>
+                    <input type="text" name="STitle" value="@currentTitle" placeholder="e.g. Python" class="form-control" />
                 </div>
-
                 <div class="col-md-3">
-                    <label class="form-label">Difficulty</label>
+                    <label class="form-label small text-muted text-uppercase">Difficulty</label>
                     <select name="difficulty" class="form-select">
-                        <option value="">-- Any --</option>
+                        <option value="">Any difficulty</option>
                         <option value="Beginner" selected="@(currentDifficulty == "Beginner")">Beginner</option>
                         <option value="Intermediate" selected="@(currentDifficulty == "Intermediate")">Intermediate</option>
                         <option value="Advanced" selected="@(currentDifficulty == "Advanced")">Advanced</option>
                     </select>
                 </div>
-
                 <div class="col-md-3">
-                    <label class="form-label">Instructor name</label>
-                    <input type="text" name="instructor" value="@currentInstructor" placeholder="e.g. tanvir" class="form-control" />
+                    <label class="form-label small text-muted text-uppercase">Instructor</label>
+                    <input type="text" name="instructor" value="@currentInstructor" placeholder="e.g. Tanvir" class="form-control" />
                 </div>
-
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary">Search</button>
                 </div>
             </div>
 
-            @if (currentTitle != null || currentDifficulty != null || currentInstructor != null)
+            @if (!string.IsNullOrEmpty(currentTitle) || !string.IsNullOrEmpty(currentDifficulty) || !string.IsNullOrEmpty(currentInstructor))
             {
-                <div class="mt-2">
-                    <a asp-action="BrowseCourses" class="btn btn-sm btn-link">Clear filters</a>
+                <div class="mt-3">
+                    <a asp-action="BrowseCourses" class="btn btn-sm btn-outline-secondary">✕ Clear filters</a>
                 </div>
             }
         </form>
@@ -52,52 +53,64 @@
 <!-- Results -->
 @if (!Model.Any())
 {
-    <div class="alert alert-info">
-        No courses found matching your filters.
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <div style="font-size:3rem">🔍</div>
+            <h5 class="text-muted">No courses match your filters</h5>
+            <p class="text-muted small">Try adjusting your search criteria.</p>
+        </div>
     </div>
 }
 else
 {
-    <p class="text-muted">@Model.Count() course(s) found.</p>
-    <div class="row">
-        @{
-            var enrolledCourseIds = ViewBag.EnrolledCourseIds as HashSet<int> ?? new HashSet<int>();
-        }
-
+    <p class="text-muted small mb-3">Showing <strong>@Model.Count()</strong> course(s)</p>
+    <div class="row g-3">
         @foreach (var course in Model)
         {
             bool isEnrolled = enrolledCourseIds.Contains(course.Id);
-            <div class="col-md-6 col-lg-4 mb-3">
-                <div class="card h-100">
-                    <div class="card-body">
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-light text-dark border">@course.Difficulty</span>
+                            @if (course.MaxCapacity > 0)
+                            {
+                                <span class="badge bg-light text-dark border">Capacity: @course.MaxCapacity</span>
+                            }
+                        </div>
+
                         <h5 class="card-title">@course.Title</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">by @course.InstructorName</h6>
-                        <span class="badge bg-secondary mb-2">@course.Difficulty</span>
+                        <p class="text-muted small mb-2">by @course.InstructorName</p>
+
                         @if (!string.IsNullOrEmpty(course.PrerequisiteTitle))
                         {
-                            <p class="small text-warning">⚠ Requires: <strong>@course.PrerequisiteTitle</strong></p>
+                            <div class="alert alert-warning small py-2 mb-2">
+                                ⚠ Requires: <strong>@course.PrerequisiteTitle</strong>
+                            </div>
                         }
-                        <p class="card-text">
-                            @(course.Description.Length > 120
-                                                ? course.Description.Substring(0, 120) + "..."
+
+                        <p class="card-text text-muted small flex-grow-1">
+                            @(course.Description.Length > 110
+                                                ? course.Description.Substring(0, 110) + "..."
                                                 : course.Description)
                         </p>
-                    </div>
-                    <div class="card-footer">
-                        <small class="text-muted">Posted @course.CreatedAt.ToString("dd MMM yyyy")</small>
-                        <div class="mt-2">
-                            @if (isEnrolled)
-                            {
-                                <span class="badge bg-success">✓ Enrolled</span>
-                            }
-                            else
-                            {
-                                <form method="post" asp-controller="Enrollment" asp-action="Enroll" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="courseId" value="@course.Id" />
-                                    <button type="submit" class="btn btn-sm btn-primary">Enroll</button>
-                                </form>
-                            }
+
+                        <div class="border-top pt-3 mt-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">@course.CreatedAt.ToString("dd MMM yyyy")</small>
+                                @if (isEnrolled)
+                                {
+                                    <span class="badge bg-success">✓ Enrolled</span>
+                                }
+                                else
+                                {
+                                    <form method="post" asp-controller="Enrollment" asp-action="Enroll" class="m-0">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="courseId" value="@course.Id" />
+                                        <button type="submit" class="btn btn-sm btn-primary">Enroll →</button>
+                                    </form>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -105,5 +118,3 @@ else
         }
     </div>
 }
-
-<a asp-action="Dashboard" class="btn btn-link">← Back to Dashboard</a>

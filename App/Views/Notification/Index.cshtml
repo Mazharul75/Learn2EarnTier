@@ -1,57 +1,62 @@
 ﻿@model List<BLL.DTOs.NotificationDTO>
-
 @{
     ViewData["Title"] = "Notifications";
     int unreadCount = Model.Count(n => !n.IsRead);
 }
 
-<h1>Notifications</h1>
-<p class="text-muted">
-    @unreadCount unread &middot; @Model.Count total
-</p>
-
-@if (unreadCount > 0)
-{
-    <form asp-action="MarkAllAsRead" method="post" class="mb-3">
-        @Html.AntiForgeryToken()
-        <button type="submit" class="btn btn-sm btn-outline-secondary">Mark all as read</button>
-    </form>
-}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-1">Notifications</h1>
+        <p class="text-muted mb-0">@unreadCount unread · @Model.Count total</p>
+    </div>
+    @if (unreadCount > 0)
+    {
+        <form asp-action="MarkAllAsRead" method="post" class="m-0">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-secondary btn-sm">Mark all as read</button>
+        </form>
+    }
+</div>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-light text-center py-5">
-        <h4 class="text-muted">No notifications yet</h4>
-        <p class="text-muted">You'll get notifications about enrollments, quiz results, and new courses here.</p>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <div style="font-size:3rem">🔔</div>
+            <h5 class="text-muted">No notifications yet</h5>
+            <p class="text-muted small">You'll get updates about enrollments, quiz results, and new courses here.</p>
+        </div>
     </div>
 }
 else
 {
-    <div class="list-group">
-        @foreach (var n in Model)
-        {
-            <div class="list-group-item @(n.IsRead ? "" : "list-group-item-info")">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="mb-1">@n.Message</p>
-                        <small class="text-muted">@n.CreatedAt.ToString("dd MMM yyyy HH:mm")</small>
-                    </div>
-                    <div>
-                        @if (!string.IsNullOrEmpty(n.Link))
-                        {
-                            <a href="@n.Link" class="btn btn-sm btn-primary">View</a>
-                        }
-                        @if (!n.IsRead)
-                        {
-                            <form asp-action="MarkAsRead" method="post" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@n.Id" />
-                                <button type="submit" class="btn btn-sm btn-outline-secondary">Mark read</button>
-                            </form>
-                        }
+    <div class="card border-0 shadow-sm">
+        <div class="list-group list-group-flush">
+            @foreach (var n in Model)
+            {
+                <div class="list-group-item @(n.IsRead ? "" : "bg-light")">
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div class="flex-grow-1">
+                            <p class="mb-1 @(n.IsRead ? "" : "fw-bold")">@n.Message</p>
+                            <small class="text-muted">@n.CreatedAt.ToString("dd MMM yyyy, HH:mm")</small>
+                        </div>
+                        <div class="d-flex gap-1">
+                            @if (!string.IsNullOrEmpty(n.Link))
+                            {
+                                <a href="@n.Link" class="btn btn-sm btn-primary">View</a>
+                            }
+                            @if (!n.IsRead)
+                            {
+                                <form asp-action="MarkAsRead" method="post" class="m-0">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@n.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">✓</button>
+                                </form>
+                            }
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
     </div>
 }

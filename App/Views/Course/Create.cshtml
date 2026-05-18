@@ -1,64 +1,77 @@
 ﻿@model BLL.DTOs.CourseDTO
-
 @{
     ViewData["Title"] = "Create Course";
 }
 
-<h1>Create New Course</h1>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h1 class="mb-4">Create New Course</h1>
 
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Create" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small"></div>
 
-            <div class="mb-3">
-                <label asp-for="Title" class="form-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label">Title</label>
+                        <input asp-for="Title" class="form-control" placeholder="e.g. Intro to Python" />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
 
-            <div class="mb-3">
-                <label asp-for="Description" class="form-label"></label>
-                <textarea asp-for="Description" class="form-control" rows="5"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="4" placeholder="What will learners discover in this course?"></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
 
-            <div class="mb-3">
-                <label asp-for="Difficulty" class="form-label"></label>
-                <select asp-for="Difficulty" class="form-select">
-                    <option value="">-- Select Difficulty --</option>
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                </select>
-                <span asp-validation-for="Difficulty" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="ContentLink" class="form-label">Course Content Link (Google Drive, YouTube, etc.)</label>
-                <input asp-for="ContentLink" class="form-control" placeholder="https://drive.google.com/..." />
-                <span asp-validation-for="ContentLink" class="text-danger"></span>
-                <small class="text-muted">Optional — paste a link to your slides, videos, or other materials.</small>
-            </div>
-            <div class="mb-3">
-                <label asp-for="PrerequisiteId" class="form-label">Prerequisite Course (optional)</label>
-                <select asp-for="PrerequisiteId" class="form-select">
-                    <option value="">-- None --</option>
-                    @foreach (var c in (List<BLL.DTOs.CourseDTO>)ViewBag.AvailableCourses)
-                    {
-                        <option value="@c.Id" selected="@(Model.PrerequisiteId == c.Id)">@c.Title</option>
-                    }
-                </select>
-                <small class="text-muted">Learners must pass this course's quiz before enrolling here.</small>
-            </div>
-            <div class="mb-3">
-                <label asp-for="MaxCapacity" class="form-label">Max Capacity (0 = unlimited)</label>
-                <input asp-for="MaxCapacity" class="form-control" type="number" min="0" max="1000" />
-                <span asp-validation-for="MaxCapacity" class="text-danger"></span>
-                <small class="text-muted">Maximum number of learners who can enroll. Set 0 for no limit.</small>
-            </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Difficulty" class="form-label">Difficulty</label>
+                            <select asp-for="Difficulty" class="form-select">
+                                <option value="">-- Select Difficulty --</option>
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                            </select>
+                            <span asp-validation-for="Difficulty" class="text-danger small"></span>
+                        </div>
 
-            <button type="submit" class="btn btn-primary">Create</button>
-            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-        </form>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="MaxCapacity" class="form-label">Max Capacity</label>
+                            <input asp-for="MaxCapacity" class="form-control" type="number" min="0" max="1000" />
+                            <small class="text-muted">0 = unlimited</small>
+                            <span asp-validation-for="MaxCapacity" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PrerequisiteId" class="form-label">Prerequisite Course (optional)</label>
+                        <select asp-for="PrerequisiteId" class="form-select">
+                            <option value="">-- None --</option>
+                            @if (ViewBag.AvailableCourses != null)
+                            {
+                                foreach (var c in (List<BLL.DTOs.CourseDTO>)ViewBag.AvailableCourses)
+                                {
+                                    <option value="@c.Id" selected="@(Model.PrerequisiteId == c.Id)">@c.Title</option>
+                                }
+                            }
+                        </select>
+                        <small class="text-muted">Learners must pass this course's quiz first.</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ContentLink" class="form-label">Course Content Link</label>
+                        <input asp-for="ContentLink" class="form-control" placeholder="https://drive.google.com/..." />
+                        <small class="text-muted">Optional — paste a link to your slides, videos, or other materials.</small>
+                        <span asp-validation-for="ContentLink" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Create Course</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>

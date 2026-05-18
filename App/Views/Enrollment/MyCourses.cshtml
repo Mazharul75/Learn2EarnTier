@@ -1,69 +1,97 @@
 ﻿@model IEnumerable<BLL.DTOs.EnrollmentDTO>
-
 @{
     ViewData["Title"] = "My Courses";
+    var completedIds = ViewBag.CompletedCourseIds as HashSet<int> ?? new HashSet<int>();
+    var attemptedIds = ViewBag.AttemptedCourseIds as HashSet<int> ?? new HashSet<int>();
 }
 
-<h1>My Enrolled Courses</h1>
-
-@if (TempData["Msg"] != null)
-{
-    <div class="alert alert-@TempData["Class"]">@TempData["Msg"]</div>
-}
+<div class="mb-4">
+    <h1 class="mb-1">My Enrolled Courses</h1>
+    <p class="text-muted">Study materials, complete tasks, and take quizzes.</p>
+</div>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info">
-        You haven't enrolled in any courses yet.
-        <a asp-controller="Learner" asp-action="BrowseCourses">Browse the catalog</a>
-        to find one.
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <div style="font-size:3rem">📚</div>
+            <h5 class="text-muted">You haven't enrolled in any courses yet</h5>
+            <p class="text-muted small mb-3">Browse the catalog and pick something that interests you.</p>
+            <a asp-controller="Learner" asp-action="BrowseCourses" class="btn btn-primary">Browse Catalog</a>
+        </div>
     </div>
 }
 else
 {
-    <p class="text-muted">@Model.Count() course(s)</p>
-    <div class="row">
+    <p class="text-muted small mb-3">You're enrolled in <strong>@Model.Count()</strong> course(s).</p>
+    <div class="row g-3">
         @foreach (var e in Model)
         {
-            <div class="col-md-6 col-lg-4 mb-3">
-                <div class="card h-100">
+            bool isCompleted = completedIds.Contains(e.CourseId);
+            bool quizAttempted = attemptedIds.Contains(e.CourseId);
+
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-light text-dark border">@e.CourseDifficulty</span>
+                            <small class="text-muted">Enrolled @e.EnrolledAt.ToString("dd MMM yyyy")</small>
+                        </div>
+
                         <h5 class="card-title">@e.CourseTitle</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">by @e.InstructorName</h6>
-                        <span class="badge bg-secondary mb-2">@e.CourseDifficulty</span>
-                        <p class="card-text">
-                            @(e.CourseDescription != null && e.CourseDescription.Length > 150
-                                                ? e.CourseDescription.Substring(0, 150) + "..."
+                        <p class="text-muted small mb-3">by @e.InstructorName</p>
+
+                        <p class="card-text text-muted small">
+                            @(e.CourseDescription != null && e.CourseDescription.Length > 130
+                                                ? e.CourseDescription.Substring(0, 130) + "..."
                                                 : e.CourseDescription)
                         </p>
-                    </div>
-                    <div class="card-footer">
-                        <small class="text-muted">Enrolled @e.EnrolledAt.ToString("dd MMM yyyy")</small>
-                        @{
-                            var completedIds = ViewBag.CompletedCourseIds as HashSet<int> ?? new HashSet<int>();
-                            bool isCompleted = completedIds.Contains(e.CourseId);
-                        }
 
-                        <div class="mt-2 d-flex gap-2 flex-wrap">
-                            @if (!string.IsNullOrEmpty(e.CourseContentLink))
-                            {
-                                <a href="@e.CourseContentLink" target="_blank" rel="noopener" class="btn btn-sm btn-success">📚 Study Materials</a>
-                            }
+                        <!-- Action buttons grouped properly -->
+                        <div class="border-top pt-3 mt-2">
+                            <!-- Row 1: Study + completion -->
+                            <div class="d-flex gap-2 flex-wrap mb-2">
+                                @if (!string.IsNullOrEmpty(e.CourseContentLink))
+                                {
+                                    <a href="@e.CourseContentLink" target="_blank" rel="noopener" class="btn btn-sm btn-outline-success">
+                                        📚 Study Materials
+                                    </a>
 
-                            @if (isCompleted)
-                            {
-                                <span class="badge bg-secondary align-self-center">✓ Studied</span>
-                            }
-                            else if (!string.IsNullOrEmpty(e.CourseContentLink))
-                            {
-                                <form asp-action="MarkMaterialComplete" method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="courseId" value="@e.CourseId" />
-                                    <button type="submit" class="btn btn-sm btn-outline-success">Mark as Studied</button>
-                                </form>
-                            }
-                            <a asp-controller="Task" asp-action="MyTasks" asp-route-id="@e.CourseId" class="btn btn-sm btn-outline-primary">Tasks</a>
-                            <a asp-controller="Quiz" asp-action="Take" asp-route-id="@e.CourseId" class="btn btn-sm btn-primary">Take Quiz</a>
+                                    @if (isCompleted)
+                                    {
+                                        <span class="badge bg-success align-self-center">✓ Studied</span>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="MarkMaterialComplete" method="post" class="m-0">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="courseId" value="@e.CourseId" />
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">Mark as Studied</button>
+                                        </form>
+                                    }
+                                }
+                                else
+                                {
+                                    <small class="text-muted">No study materials yet</small>
+                                }
+                            </div>
+
+                            <!-- Row 2: Tasks + Quiz -->
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a asp-controller="Task" asp-action="MyTasks" asp-route-id="@e.CourseId" class="btn btn-sm btn-outline-primary">
+                                    📋 Tasks
+                                </a>
+                                @if (quizAttempted)
+                                {
+                                    <span class="badge bg-secondary align-self-center">Quiz attempted</span>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Quiz" asp-action="Take" asp-route-id="@e.CourseId" class="btn btn-sm btn-primary">
+                                        📝 Take Quiz
+                                    </a>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -71,8 +99,3 @@ else
         }
     </div>
 }
-
-<div class="mt-3">
-    <a asp-controller="Learner" asp-action="Dashboard" class="btn btn-link">← Back to Dashboard</a>
-    <a asp-controller="Learner" asp-action="BrowseCourses" class="btn btn-link">Browse more courses</a>
-</div>

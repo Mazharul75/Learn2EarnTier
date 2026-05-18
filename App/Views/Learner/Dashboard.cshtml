@@ -1,111 +1,134 @@
 ﻿@model BLL.DTOs.ProgressDTO
-
 @{
-    ViewData["Title"] = "Learner Dashboard";
+    ViewData["Title"] = "Dashboard";
 }
 
-<h2>Welcome, @ViewBag.UserName!</h2>
-<p class="lead">Track your learning progress and discover new courses.</p>
+<div class="d-flex justify-content-between align-items-start flex-wrap mb-4">
+    <div>
+        <h2 class="mb-1">Welcome back, @ViewBag.UserName!</h2>
+        <p class="text-muted">Here's a snapshot of your progress.</p>
+    </div>
+    @if (Model.LastAttemptedAt != null)
+    {
+        <span class="text-muted small">
+            Last quiz attempt: @Model.LastAttemptedAt.Value.ToString("dd MMM yyyy, HH:mm")
+        </span>
+    }
+</div>
 
-<!-- ===== Stat cards ===== -->
-<div class="row mt-4">
-    <div class="col-md-3 mb-3">
-        <div class="card text-center bg-primary text-white">
+<!-- Stat cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card h-100 border-0 shadow-sm">
             <div class="card-body">
-                <h6 class="card-subtitle mb-2">Enrolled Courses</h6>
-                <h2 class="display-5">@Model.EnrolledCoursesCount</h2>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Enrolled</div>
+                        <div class="display-6 fw-bold mt-1">@Model.EnrolledCoursesCount</div>
+                    </div>
+                    <div style="font-size:2rem">📚</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3 mb-3">
-        <div class="card text-center bg-info text-white">
+    <div class="col-md-3">
+        <div class="card h-100 border-0 shadow-sm">
             <div class="card-body">
-                <h6 class="card-subtitle mb-2">Quizzes Attempted</h6>
-                <h2 class="display-5">@Model.QuizzesAttempted</h2>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Attempted</div>
+                        <div class="display-6 fw-bold mt-1">@Model.QuizzesAttempted</div>
+                    </div>
+                    <div style="font-size:2rem">📝</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3 mb-3">
-        <div class="card text-center bg-success text-white">
+    <div class="col-md-3">
+        <div class="card h-100 border-0 shadow-sm">
             <div class="card-body">
-                <h6 class="card-subtitle mb-2">Quizzes Passed</h6>
-                <h2 class="display-5">@Model.QuizzesPassed</h2>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Passed</div>
+                        <div class="display-6 fw-bold mt-1 text-success">@Model.QuizzesPassed</div>
+                    </div>
+                    <div style="font-size:2rem">✅</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3 mb-3">
-        <div class="card text-center bg-warning text-dark">
+    <div class="col-md-3">
+        <div class="card h-100 border-0 shadow-sm">
             <div class="card-body">
-                <h6 class="card-subtitle mb-2">Average Score</h6>
-                <h2 class="display-5">
-                    @if (Model.QuizzesAttempted > 0)
-                    {
-                        <span>@Model.AverageScore%</span>
-                    }
-                    else
-                    {
-                        <span>—</span>
-                    }
-                </h2>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Avg Score</div>
+                        <div class="display-6 fw-bold mt-1">
+                            @if (Model.QuizzesAttempted > 0)
+                            {
+                                <span>@Model.AverageScore<small class="fs-6">%</small></span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </div>
+                    </div>
+                    <div style="font-size:2rem">📊</div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-@if (Model.LastAttemptedAt != null)
-{
-    <p class="text-muted small">
-        Last quiz attempt: @Model.LastAttemptedAt.Value.ToString("dd MMM yyyy HH:mm")
-    </p>
-}
-
-<!-- ===== Chart (Phase H4) ===== -->
+<!-- Chart -->
 @if (Model.CourseScores.Any())
 {
-    <div class="card mt-4">
+    <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
-            <h5 class="card-title">Score per Course (best attempt)</h5>
-            <canvas id="scoreChart" height="100"></canvas>
+            <h5 class="card-title mb-3">Score per Course <span class="text-muted small fw-normal">(best attempt)</span></h5>
+            <canvas id="scoreChart" height="90"></canvas>
         </div>
     </div>
 }
 else
 {
-    <div class="alert alert-light mt-4">
-        Take a quiz to see your scores visualized here.
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body text-center py-5">
+            <div style="font-size:3rem">📈</div>
+            <h5 class="text-muted">No quiz attempts yet</h5>
+            <p class="text-muted small mb-3">Take a quiz to see your scores visualized here.</p>
+            <a asp-controller="Enrollment" asp-action="MyCourses" class="btn btn-outline-primary btn-sm">Go to My Courses</a>
+        </div>
     </div>
 }
 
-<!-- ===== Navigation cards ===== -->
-<hr class="mt-5" />
-
-<div class="row mt-4">
-    <div class="col-md-4 mb-3">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Browse Courses</h5>
-                <p class="card-text">Discover courses by topic, difficulty, or instructor.</p>
-                <a asp-action="BrowseCourses" class="btn btn-primary">Browse Catalog</a>
+<!-- Quick links -->
+<div class="row g-3">
+    <div class="col-md-6">
+        <a asp-action="BrowseCourses" class="text-decoration-none">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">🔍 Browse Courses</h5>
+                    <p class="text-muted mb-0">Discover new courses by topic, difficulty, or instructor.</p>
+                </div>
             </div>
-        </div>
+        </a>
     </div>
-
-    <div class="col-md-4 mb-3">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">My Courses</h5>
-                <p class="card-text">View courses you're enrolled in and take quizzes.</p>
-                <a asp-controller="Enrollment" asp-action="MyCourses" class="btn btn-success">My Enrollments</a>
+    <div class="col-md-6">
+        <a asp-controller="Enrollment" asp-action="MyCourses" class="text-decoration-none">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">📚 My Courses</h5>
+                    <p class="text-muted mb-0">View your enrolled courses and take quizzes.</p>
+                </div>
             </div>
-        </div>
+        </a>
     </div>
 </div>
-
-<hr />
-<a asp-controller="Auth" asp-action="Logout" class="btn btn-outline-danger">Logout</a>
 
 @section Scripts {
     @if (Model.CourseScores.Any())
@@ -116,9 +139,8 @@ else
             const scores = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CourseScores.Select(c => c.BestScore)));
             const passedFlags = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CourseScores.Select(c => c.Passed)));
 
-            // Color bars: green if passed, red if not
-            const backgroundColors = passedFlags.map(p => p ? 'rgba(40,167,69,0.7)' : 'rgba(220,53,69,0.7)');
-            const borderColors = passedFlags.map(p => p ? 'rgba(40,167,69,1)' : 'rgba(220,53,69,1)');
+            const backgroundColors = passedFlags.map(p => p ? 'rgba(34, 197, 94, 0.7)' : 'rgba(239, 68, 68, 0.7)');
+            const borderColors = passedFlags.map(p => p ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)');
 
             const ctx = document.getElementById('scoreChart').getContext('2d');
             new Chart(ctx, {
@@ -130,24 +152,17 @@ else
                         data: scores,
                         backgroundColor: backgroundColors,
                         borderColor: borderColors,
-                        borderWidth: 1
+                        borderWidth: 1,
+                        borderRadius: 6
                     }]
                 },
                 options: {
                     responsive: true,
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            title: { display: true, text: 'Score (%)' }
-                        },
-                        x: {
-                            title: { display: true, text: 'Course' }
-                        }
+                        y: { beginAtZero: true, max: 100, title: { display: true, text: 'Score (%)' }, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
                     },
-                    plugins: {
-                        legend: { display: false }
-                    }
+                    plugins: { legend: { display: false } }
                 }
             });
         </script>
