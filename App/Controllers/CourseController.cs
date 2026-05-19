@@ -17,7 +17,7 @@ namespace App.Controllers
             this.enrollmentService = enrollmentService;
         }
 
-        // ===== INDEX: list this instructor's courses =====
+        //list this instructors course
         public IActionResult Index()
         {
             int instructorId = (int)HttpContext.Session.GetInt32("UserId")!;
@@ -25,7 +25,7 @@ namespace App.Controllers
             return View(courses);
         }
 
-        // ===== CREATE =====
+        //CREATE
         [HttpGet]
         public IActionResult Create()
         {
@@ -70,7 +70,7 @@ namespace App.Controllers
             return View(students);
         }
 
-        // ===== EDIT =====
+        //EDIT
         [HttpGet]
         public IActionResult Edit(int id)
         {
@@ -111,7 +111,7 @@ namespace App.Controllers
             return View(dto);
         }
 
-        // ===== DELETE =====
+        //DELETE
         [HttpGet]
         public IActionResult Delete(int id)
         {

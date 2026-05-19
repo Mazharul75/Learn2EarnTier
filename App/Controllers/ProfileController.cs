@@ -38,7 +38,6 @@ namespace App.Controllers
             bool success = authService.UpdateProfile(userId, Name.Trim());
             if (success)
             {
-                // Also update the session so navbar updates
                 HttpContext.Session.SetString("UserName", Name.Trim());
                 TempData["Class"] = "success";
                 TempData["Msg"] = "Profile updated.";

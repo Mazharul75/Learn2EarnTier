@@ -1,51 +1,29 @@
-﻿@model BLL.DTOs.ProfileDTO
-@{
-    ViewData["Title"] = "My Profile";
+﻿@model IEnumerable<BLL.DTOs.TaskSubmissionDTO>
+@if (TempData["Msg"] != null)
+{
+    <div class="alert alert-info">@TempData["Msg"]</div>
 }
-
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <h1 class="mb-4">My Profile</h1>
-
-        <div class="row g-3">
-            <!-- Account info -->
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Account Info</h5>
-                        <dl class="row mb-0">
-                            <dt class="col-sm-4 text-muted small">Email</dt>
-                            <dd class="col-sm-8">@Model.Email</dd>
-
-                            <dt class="col-sm-4 text-muted small">Role</dt>
-                            <dd class="col-sm-8"><span class="badge bg-light text-dark border">@Model.UserTypeName</span></dd>
-
-                            <dt class="col-sm-4 text-muted small">Member since</dt>
-                            <dd class="col-sm-8">@Model.CreatedAt.ToString("dd MMM yyyy")</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Edit profile -->
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Edit Profile</h5>
-                        <form method="post" asp-action="Index">
-                            @Html.AntiForgeryToken()
-
-                            <div class="mb-3">
-                                <label class="form-label">Name</label>
-                                <input type="text" name="Name" value="@Model.Name" class="form-control" />
-                                <small class="text-muted">Email and role cannot be changed.</small>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<h2>Review Student Tasks</h2>
+<table class="table table-bordered">
+    <tr>
+        <th>Learner Name</th>
+        <th>Task Title</th>
+        <th>Link</th>
+        <th>Action</th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.LearnerName</td>
+            <td>@item.TaskTitle</td>
+            <td><a href="@item.SubmissionLink" target="_blank">View Work</a></td>
+            <td>
+                <form method="post" action="/Task/ReviewSubmission" style="display:inline;">
+                    <input type="hidden" name="Id" value="@item.Id" />
+                    <button type="submit" name="Status" value="Approved" class="btn btn-sm btn-success">Approve</button>
+                    <button type="submit" name="Status" value="Rejected" class="btn btn-sm btn-danger">Reject</button>
+                </form>
+            </td>
+        </tr>
+    }
+</table>

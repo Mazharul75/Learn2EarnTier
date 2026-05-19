@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace App.Controllers
 {
-    // Note: no class-level filter — we mix Instructor & Learner actions in this controller
     public class QuizController : Controller
     {
         QuizService quizService;
@@ -17,17 +16,12 @@ namespace App.Controllers
             this.courseService = courseService;
         }
 
-        // ============================================================
-        // ===== INSTRUCTOR SIDE =====
-        // ============================================================
-
-        // GET /Quiz/Manage/5  (5 = courseId)
+        //INSTRUCTOR
         [InstructorOnly]
         public IActionResult Manage(int id)
         {
             int instructorId = (int)HttpContext.Session.GetInt32("UserId")!;
 
-            // Must own the course
             if (!courseService.IsOwnedBy(id, instructorId))
             {
                 TempData["Class"] = "danger";
@@ -39,7 +33,6 @@ namespace App.Controllers
             return View(quiz);
         }
 
-        // POST: add a question to a quiz
         [HttpPost]
         [InstructorOnly]
         [ValidateAntiForgeryToken]
@@ -77,7 +70,6 @@ namespace App.Controllers
             return RedirectToAction("Manage", new { id = courseId });
         }
 
-        // GET: edit a question
         [InstructorOnly]
         public IActionResult EditQuestion(int id, int courseId)
         {
@@ -94,7 +86,6 @@ namespace App.Controllers
             return View(question);
         }
 
-        // POST: save edited question
         [HttpPost]
         [InstructorOnly]
         [ValidateAntiForgeryToken]
@@ -122,7 +113,6 @@ namespace App.Controllers
             return View(dto);
         }
 
-        // POST: delete a question
         [HttpPost]
         [InstructorOnly]
         [ValidateAntiForgeryToken]
@@ -140,11 +130,7 @@ namespace App.Controllers
             return RedirectToAction("Manage", new { id = courseId });
         }
 
-        // ============================================================
-        // ===== LEARNER SIDE =====
-        // ============================================================
-
-        // GET /Quiz/Take/5  (5 = courseId)
+        //LEARNER
         [LearnerOnly]
         public IActionResult Take(int id)
         {
@@ -163,7 +149,6 @@ namespace App.Controllers
             return View(questions);
         }
 
-        // POST /Quiz/Submit
         [HttpPost]
         [LearnerOnly]
         [ValidateAntiForgeryToken]

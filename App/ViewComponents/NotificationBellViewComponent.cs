@@ -17,7 +17,6 @@ namespace App.ViewComponents
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
             {
-                // Not logged in — render nothing
                 return Content("");
             }
 

@@ -10,20 +10,17 @@ namespace BLL
     public class MapperConfig
     {
         static MapperConfiguration config = new MapperConfiguration(cfg => {
-            // User mappings
             cfg.CreateMap<User, UserDTO>().ReverseMap();
             cfg.CreateMap<User, RegistrationDTO>().ReverseMap();
 
-            // Course mappings 
             cfg.CreateMap<Course, CourseDTO>()
                .ForMember(dest => dest.InstructorName,
                           opt => opt.MapFrom(src => src.Instructor != null ? src.Instructor.Name : ""))
-               .ForMember(dest => dest.PrerequisiteTitle,      // ← ADD
+               .ForMember(dest => dest.PrerequisiteTitle,
                           opt => opt.MapFrom(src => src.Prerequisite != null
                                                     ? src.Prerequisite.Title : null))
                .ReverseMap();
 
-            // Enrollment mappings
             cfg.CreateMap<Enrollment, EnrollmentDTO>()
                .ForMember(dest => dest.CourseTitle,
                           opt => opt.MapFrom(src => src.Course != null ? src.Course.Title : ""))
@@ -38,7 +35,6 @@ namespace BLL
                                                     ? src.Course.Instructor.Name : ""))
                .ReverseMap();
 
-            // Tasks
             cfg.CreateMap<CourseTask, CourseTaskDTO>().ReverseMap();
             cfg.CreateMap<TaskSubmission, TaskSubmissionDTO>()
                .ForMember(dest => dest.TaskTitle,
@@ -47,7 +43,6 @@ namespace BLL
                           opt => opt.MapFrom(src => src.Learner != null ? src.Learner.Name : ""))
                .ReverseMap();
 
-            // Quiz mappings
             cfg.CreateMap<Quiz, QuizDTO>()
                .ForMember(dest => dest.CourseTitle,
                           opt => opt.MapFrom(src => src.Course != null ? src.Course.Title : ""))
@@ -59,7 +54,6 @@ namespace BLL
 
             cfg.CreateMap<Question, QuestionForLearnerDTO>();
 
-            // Notification mappings
             cfg.CreateMap<Notification, NotificationDTO>().ReverseMap();
         });
 

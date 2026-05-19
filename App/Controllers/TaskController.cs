@@ -16,10 +16,10 @@ namespace App.Controllers
             this.courseService = courseService;
         }
 
-        // ===== INSTRUCTOR =====
+        //INSTRUCTOR
 
         [InstructorOnly]
-        public IActionResult Manage(int id)  // courseId
+        public IActionResult Manage(int id)
         {
             int instructorId = (int)HttpContext.Session.GetInt32("UserId")!;
             if (!courseService.IsOwnedBy(id, instructorId))
@@ -107,10 +107,10 @@ namespace App.Controllers
             return RedirectToAction("Manage", new { id = courseId });
         }
 
-        // ===== LEARNER =====
+        //LEARNER
 
         [LearnerOnly]
-        public IActionResult MyTasks(int id)  // courseId
+        public IActionResult MyTasks(int id)
         {
             int learnerId = (int)HttpContext.Session.GetInt32("UserId")!;
             var course = courseService.Get(id);

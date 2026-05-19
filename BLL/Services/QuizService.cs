@@ -33,8 +33,6 @@ namespace BLL.Services
             this.notificationService = notificationService;
             mapper = MapperConfig.GetMapper();
         }
-
-        // ===== Result types =====
         public enum SubmitResult
         {
             Success,
@@ -45,7 +43,6 @@ namespace BLL.Services
             DatabaseError
         }
 
-        // ===== Ensure a course has a quiz (auto-create if missing) =====
         public QuizDTO GetOrCreateQuizForCourse(int courseId, int passMark = 50)
         {
             var quiz = quizRepo.GetByCourse(courseId);
@@ -58,7 +55,6 @@ namespace BLL.Services
             return MapQuizWithQuestions(quiz);
         }
 
-        // ===== Get quiz for instructor (with correct answers visible) =====
         public QuizDTO? GetForInstructor(int courseId)
         {
             var quiz = quizRepo.GetByCourse(courseId);
@@ -66,7 +62,6 @@ namespace BLL.Services
             return MapQuizWithQuestions(quiz);
         }
 
-        // ===== Get quiz for learner (CorrectOption hidden!) =====
         public List<QuestionForLearnerDTO>? GetForLearner(int courseId)
         {
             var quiz = quizRepo.GetByCourse(courseId);
@@ -76,13 +71,11 @@ namespace BLL.Services
             return mapper.Map<List<QuestionForLearnerDTO>>(questions);
         }
 
-        // ===== Just get the Quiz info (PassMark etc.) without questions =====
         public Quiz? GetQuizByCourse(int courseId)
         {
             return quizRepo.GetByCourse(courseId);
         }
 
-        // ===== Add a question =====
         public bool AddQuestion(QuestionDTO dto)
         {
             var question = new Question
@@ -97,8 +90,6 @@ namespace BLL.Services
             };
             return questionRepo.Create(question);
         }
-
-        // ===== Edit a question =====
         public bool UpdateQuestion(QuestionDTO dto)
         {
             var existing = questionRepo.Get(dto.Id);
@@ -114,7 +105,6 @@ namespace BLL.Services
             return questionRepo.Update(existing);
         }
 
-        // ===== Delete a question =====
         public bool DeleteQuestion(int questionId)
         {
             return questionRepo.Delete(questionId);
@@ -127,33 +117,24 @@ namespace BLL.Services
             return mapper.Map<QuestionDTO>(q);
         }
 
-        // ============================================================
-        // ===== 🌟 AUTO-GRADING — the heart of the project =====
-        // ============================================================
-
+        //Auto_grading
         public (SubmitResult result, QuizResultDTO? data) Submit(QuizSubmissionDTO submission, int learnerId)
         {
-            // Find the quiz
             var quiz = quizRepo.Get(submission.QuizId);
             if (quiz == null) return (SubmitResult.QuizNotFound, null);
 
-            // Find the course (for title and enrollment check)
             var course = courseRepo.Get(quiz.CourseId);
             if (course == null) return (SubmitResult.QuizNotFound, null);
 
-            // Must be enrolled to submit
             if (!enrollmentRepo.Exists(learnerId, course.Id))
                 return (SubmitResult.NotEnrolled, null);
 
-            // One-attempt-only rule — block if learner already attempted this quiz
             var priorAttempts = attemptRepo.GetByLearnerAndQuiz(learnerId, quiz.Id);
             if (priorAttempts.Any()) return (SubmitResult.AlreadyAttempted, null);
 
-            // Load questions
             var questions = questionRepo.GetByQuiz(quiz.Id);
             if (questions.Count == 0) return (SubmitResult.NoQuestions, null);
 
-            // ===== GRADE =====
             int correctCount = 0;
             var breakdown = new List<QuestionResultDTO>();
 
@@ -180,11 +161,9 @@ namespace BLL.Services
                 });
             }
 
-            // Score as percentage (rounded down)
             int score = (int)Math.Round(100.0 * correctCount / questions.Count);
             bool passed = score >= quiz.PassMark;
 
-            // ===== STORE THE ATTEMPT =====
             var attempt = new QuizAttempt
             {
                 LearnerId = learnerId,
@@ -197,7 +176,6 @@ namespace BLL.Services
             bool saved = attemptRepo.Create(attempt);
             if (!saved) return (SubmitResult.DatabaseError, null);
 
-            //Notify the learner if they passed
             if (passed)
             {
                 notificationService.Notify(
@@ -206,7 +184,6 @@ namespace BLL.Services
                     link: "/Enrollment/MyCourses");
             }
 
-            // ===== BUILD RESULT DTO =====
             var result = new QuizResultDTO
             {
                 AttemptId = attempt.Id,
@@ -225,14 +202,11 @@ namespace BLL.Services
             return (SubmitResult.Success, result);
         }
 
-        // ===== Helper: build a QuizDTO with embedded questions =====
         QuizDTO MapQuizWithQuestions(Quiz quiz)
         {
-            // Fill the course for CourseTitle
             if (quiz.Course == null)
                 quiz.Course = courseRepo.Get(quiz.CourseId);
 
-            // Fill the questions
             if (quiz.Questions == null || quiz.Questions.Count == 0)
             {
                 var questions = questionRepo.GetByQuiz(quiz.Id);

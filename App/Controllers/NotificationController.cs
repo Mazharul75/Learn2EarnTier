@@ -14,7 +14,6 @@ namespace App.Controllers
             this.notificationService = notificationService;
         }
 
-        // GET /Notification
         public IActionResult Index()
         {
             int userId = (int)HttpContext.Session.GetInt32("UserId")!;
@@ -22,7 +21,6 @@ namespace App.Controllers
             return View(list);
         }
 
-        // POST /Notification/MarkAsRead/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult MarkAsRead(int id)
@@ -31,7 +29,6 @@ namespace App.Controllers
             return RedirectToAction("Index");
         }
 
-        // POST /Notification/MarkAllAsRead
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult MarkAllAsRead()

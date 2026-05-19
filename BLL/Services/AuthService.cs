@@ -22,14 +22,12 @@ namespace BLL.Services
             mapper = MapperConfig.GetMapper();
         }
 
-        // ===== Registration =====
         public bool Register(RegistrationDTO dto)
         {
-            // Business rule: email must be unique
+            //email must be unique
             if (EmailExists(dto.Email))
                 return false;
 
-            // Convert DTO → entity, hash password, set CreatedAt
             var user = new User
             {
                 Name = dto.Name,
@@ -42,12 +40,11 @@ namespace BLL.Services
             return userRepo.Create(user);
         }
 
-        // ===== Login =====
+        //Login
         public UserDTO? Login(LoginDTO dto)
         {
             var hashedPassword = GetMd5(dto.Password);
 
-            // Find a user with matching email and password
             var user = userRepo.Get()
                 .FirstOrDefault(u => u.Email == dto.Email
                                   && u.Password == hashedPassword);
@@ -58,19 +55,17 @@ namespace BLL.Services
             return mapper.Map<UserDTO>(user);
         }
 
-        // ===== Email uniqueness check (used by Register AND by custom validator) =====
         public bool EmailExists(string email)
         {
             return userRepo.Get().Any(u => u.Email == email);
         }
 
-        // ===== User types for the dropdown =====
         public List<UserType> GetUserTypes()
         {
             return userTypeRepo.Get();
         }
 
-        // ===== MD5 hashing (private helper) =====
+        //MD5 hashing
         static string GetMd5(string input)
         {
             using (MD5 md5 = MD5.Create())
@@ -81,7 +76,7 @@ namespace BLL.Services
                 StringBuilder sb = new StringBuilder();
                 foreach (byte b in hashBytes)
                 {
-                    sb.Append(b.ToString("x2")); // lowercase hex
+                    sb.Append(b.ToString("x2"));
                 }
 
                 return sb.ToString();

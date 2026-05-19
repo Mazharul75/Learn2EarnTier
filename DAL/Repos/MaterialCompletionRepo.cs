@@ -47,8 +47,6 @@ namespace DAL.Repos
             return db.SaveChanges() > 0;
         }
 
-        // === Specialized queries ===
-
         public bool IsCompleted(int learnerId, int courseId)
         {
             return db.MaterialCompletions.Any(m => m.LearnerId == learnerId && m.CourseId == courseId);

@@ -13,7 +13,7 @@ namespace App.Controllers
             this.authService = authService;
         }
 
-        // ===== Registration =====
+        //Registration
 
         [HttpGet]
         public IActionResult Registration()
@@ -41,7 +41,7 @@ namespace App.Controllers
             return View(obj);
         }
 
-        // ===== Login =====
+        //Login
 
         [HttpGet]
         public IActionResult Login()
@@ -63,7 +63,7 @@ namespace App.Controllers
                     HttpContext.Session.SetInt32("UserTypeId", user.UserTypeId);
                     HttpContext.Session.SetString("UserName", user.Name);
 
-                    // Role-based redirect
+                    // Role-based redirectio n
                     if (user.UserTypeId == 1)
                     {
                         return RedirectToAction("Dashboard", "Learner");
@@ -80,7 +80,7 @@ namespace App.Controllers
             return View(obj);
         }
 
-        // ===== Logout =====
+        //Logout
 
         public IActionResult Logout()
         {

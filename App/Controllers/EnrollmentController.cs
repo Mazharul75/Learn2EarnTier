@@ -14,7 +14,6 @@ namespace App.Controllers
             this.enrollmentService = enrollmentService;
         }
 
-        // ===== POST /Enrollment/Enroll  with form field CourseId =====
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Enroll(int courseId)
@@ -84,13 +83,11 @@ namespace App.Controllers
             return RedirectToAction("MyCourses");
         }
 
-        // ===== GET /Enrollment/MyCourses =====
         public IActionResult MyCourses()
         {
             int learnerId = (int)HttpContext.Session.GetInt32("UserId")!;
             var enrollments = enrollmentService.GetByLearner(learnerId);
 
-            // Compute set of CourseIds the learner has marked as studied
             var completedCourseIds = new HashSet<int>();
             foreach (var e in enrollments)
             {

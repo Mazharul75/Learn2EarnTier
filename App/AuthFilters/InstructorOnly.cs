@@ -9,7 +9,7 @@ namespace App.AuthFilters
         {
             var userId = context.HttpContext.Session.GetInt32("UserId");
             var userTypeId = context.HttpContext.Session.GetInt32("UserTypeId");
-            if (userId == null || userTypeId != 2) // 2 = Instructor
+            if (userId == null || userTypeId != 2) // 2 = Instruc
             {
                 context.Result = new RedirectToActionResult("Login", "Auth", null);
             }

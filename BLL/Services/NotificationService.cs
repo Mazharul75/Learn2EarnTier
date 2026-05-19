@@ -21,7 +21,6 @@ namespace BLL.Services
             mapper = MapperConfig.GetMapper();
         }
 
-        // ===== Create a notification for one user =====
         public void Notify(int userId, string message, string? link = null)
         {
             var n = new Notification
@@ -35,7 +34,6 @@ namespace BLL.Services
             notificationRepo.Create(n);
         }
 
-        // ===== Create notifications for many users =====
         public void NotifyMany(IEnumerable<int> userIds, string message, string? link = null)
         {
             foreach (var uid in userIds)
@@ -44,33 +42,28 @@ namespace BLL.Services
             }
         }
 
-        // ===== Notify every user of a given role (e.g., all Learners) =====
         public void NotifyByRole(int userTypeId, string message, string? link = null)
         {
             var users = userRepo.Get().Where(u => u.UserTypeId == userTypeId).Select(u => u.Id);
             NotifyMany(users, message, link);
         }
 
-        // ===== Get all notifications for a user, newest first =====
         public List<NotificationDTO> GetForUser(int userId)
         {
             var list = notificationRepo.GetByUser(userId);
             return mapper.Map<List<NotificationDTO>>(list);
         }
 
-        // ===== Just the unread count for the nav badge =====
         public int GetUnreadCount(int userId)
         {
             return notificationRepo.GetUnreadCount(userId);
         }
 
-        // ===== Mark one notification as read =====
         public bool MarkAsRead(int notificationId)
         {
             return notificationRepo.MarkAsRead(notificationId);
         }
 
-        // ===== Mark all notifications as read for a user =====
         public bool MarkAllAsRead(int userId)
         {
             return notificationRepo.MarkAllAsRead(userId);

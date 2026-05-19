@@ -31,21 +31,16 @@ namespace BLL.Services
         {
             var dto = new ProgressDTO();
 
-            // ===== Enrollments =====
             var enrollments = enrollmentRepo.GetByLearner(learnerId);
             dto.EnrolledCoursesCount = enrollments.Count;
 
-            // ===== All attempts by this learner =====
             var allAttempts = attemptRepo.GetByLearner(learnerId);
 
             if (allAttempts.Count == 0)
             {
-                // No quiz activity yet — leave stats at default (0s, null)
                 return dto;
             }
 
-
-            // ===== Group attempts by Quiz, keep best score per quiz =====
             var bestPerQuiz = allAttempts
                 .GroupBy(a => a.QuizId)
                 .Select(g => new
@@ -62,7 +57,6 @@ namespace BLL.Services
             dto.LastAttemptedAt = allAttempts.Max(a => a.AttemptedAt);
             dto.MaterialsStudied = matRepo.GetByLearner(learnerId).Count;
 
-            // ===== Build per-course chart data =====
             foreach (var best in bestPerQuiz)
             {
                 var quiz = quizRepo.Get(best.QuizId);

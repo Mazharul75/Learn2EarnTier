@@ -34,8 +34,6 @@ namespace BLL.Services
             mapper = MapperConfig.GetMapper();
         }
 
-        // ===== Instructor side =====
-
         public bool CreateTask(CourseTaskDTO dto)
         {
             var task = new CourseTask
@@ -48,7 +46,6 @@ namespace BLL.Services
             bool saved = taskRepo.Create(task);
             if (!saved) return false;
 
-            // Notify all enrolled learners about the new task
             var course = courseRepo.Get(dto.CourseId);
             if (course != null)
             {
@@ -90,7 +87,6 @@ namespace BLL.Services
 
             if (saved)
             {
-                // Notify learner of the review result
                 var emoji = dto.Status == "Approved" ? "✓" : "✗";
                 notificationService.Notify(
                     userId: sub.LearnerId,
@@ -100,21 +96,16 @@ namespace BLL.Services
             return saved;
         }
 
-        // ===== Learner side =====
-
         public bool SubmitTask(int learnerId, int taskId, string link)
         {
             var task = taskRepo.Get(taskId);
             if (task == null) return false;
 
-            // Must be enrolled in the course
             if (!enrollmentRepo.Exists(learnerId, task.CourseId)) return false;
 
-            // Check for existing submission (one per learner per task)
             var existing = submissionRepo.GetByLearnerAndTask(learnerId, taskId);
             if (existing != null)
             {
-                // Allow re-submission only if rejected
                 if (existing.Status == "Rejected")
                 {
                     existing.SubmissionLink = link;
@@ -123,7 +114,7 @@ namespace BLL.Services
                     existing.SubmittedAt = DateTime.Now;
                     return submissionRepo.Update(existing);
                 }
-                return false;  // already submitted, can't resubmit
+                return false;
             }
 
             var sub = new TaskSubmission
@@ -138,7 +129,6 @@ namespace BLL.Services
 
             if (saved)
             {
-                // Notify instructor
                 var course = courseRepo.Get(task.CourseId);
                 if (course != null)
                 {

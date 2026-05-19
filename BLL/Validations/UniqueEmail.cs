@@ -8,15 +8,14 @@ namespace BLL.Validations
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
             if (value == null)
-                return ValidationResult.Success; // [Required] handles null; we don't double up
+                return ValidationResult.Success;
 
             var email = value.ToString();
 
-            // Pull AuthService from DI
             var authService = validationContext.GetService(typeof(AuthService)) as AuthService;
 
             if (authService == null)
-                return ValidationResult.Success; // service not available; skip
+                return ValidationResult.Success;
 
             if (authService.EmailExists(email!))
                 return new ValidationResult("This email is already registered.");

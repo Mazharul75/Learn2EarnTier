@@ -37,7 +37,6 @@ namespace BLL.Services
             mapper = MapperConfig.GetMapper();
         }
 
-        // ===== Result type for the Enroll method =====
         public enum EnrollResult
         {
             Success,
@@ -49,28 +48,21 @@ namespace BLL.Services
             DatabaseError
         }
 
-        // ===== Enroll a learner in a course =====
         public EnrollResult Enroll(int learnerId, int courseId)
         {
-            // Rule 1: Course must exist
             var course = courseRepo.Get(courseId);
             if (course == null) return EnrollResult.CourseNotFound;
 
-            // Rule 2: Not your own course
             if (course.InstructorId == learnerId) return EnrollResult.OwnCourse;
 
-            // Rule : Prerequisite check
             if (course.PrerequisiteId.HasValue)
             {
                 if (!HasCompletedCourse(learnerId, course.PrerequisiteId.Value))
                     return EnrollResult.PrerequisiteNotMet;
             }
 
-
-            // Rule 3: Not already enrolled
             if (enrollmentRepo.Exists(learnerId, courseId)) return EnrollResult.AlreadyEnrolled;
 
-            // Rule 4 : Capacity check — if MaxCapacity is set and reached, block
             if (course.MaxCapacity.HasValue && course.MaxCapacity.Value > 0)
             {
                 int currentCount = enrollmentRepo.CountByCourse(courseId);
@@ -78,7 +70,6 @@ namespace BLL.Services
                     return EnrollResult.CourseFull;
             }
 
-            // All rules pass — create the enrollment
             var enrollment = new Enrollment
             {
                 LearnerId = learnerId,
@@ -89,7 +80,6 @@ namespace BLL.Services
             bool saved = enrollmentRepo.Create(enrollment);
             if (!saved) return EnrollResult.DatabaseError;
 
-            // Notify the instructor that a learner enrolled
             var learner = userRepo.Get(learnerId);
             string learnerName = learner?.Name ?? "Someone";
             notificationService.Notify(
@@ -100,13 +90,11 @@ namespace BLL.Services
             return EnrollResult.Success;
         }
 
-        // ===== Check if a learner is already enrolled in a course =====
         public bool IsEnrolled(int learnerId, int courseId)
         {
             return enrollmentRepo.Exists(learnerId, courseId);
         }
 
-        // ===== Get this learner's enrollments (with course details) =====
         public List<EnrollmentDTO> GetByLearner(int learnerId)
         {
             var enrollments = enrollmentRepo.GetByLearner(learnerId);
@@ -117,7 +105,6 @@ namespace BLL.Services
         public List<EnrollmentDTO> GetByCourse(int courseId)
         {
             var enrollments = enrollmentRepo.GetByCourse(courseId);
-            // Fill learner data
             foreach (var e in enrollments)
             {
                 if (e.Learner == null)
@@ -137,7 +124,7 @@ namespace BLL.Services
         public bool MarkMaterialComplete(int learnerId, int courseId)
         {
             if (materialCompletionRepo.IsCompleted(learnerId, courseId))
-                return true;  // already complete, idempotent
+                return true;
 
             var mc = new MaterialCompletion
             {
@@ -153,7 +140,6 @@ namespace BLL.Services
             return materialCompletionRepo.IsCompleted(learnerId, courseId);
         }
 
-        // ===== Helper: populate Course and Course.Instructor navigation =====
         void FillCourseAndInstructor(List<Enrollment> enrollments)
         {
             foreach (var e in enrollments)
@@ -171,9 +157,8 @@ namespace BLL.Services
 
         public bool HasCompletedCourse(int learnerId, int courseId)
         {
-            // Course is "completed" when the learner has passed its quiz
             var quiz = quizRepo.GetByCourse(courseId);
-            if (quiz == null) return false;  // no quiz means uncompletable
+            if (quiz == null) return false;
 
             var attempts = attemptRepo.GetByLearnerAndQuiz(learnerId, quiz.Id);
             return attempts.Any(a => a.Passed);
